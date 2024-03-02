@@ -5,5 +5,4 @@
 
 ## Analysis workflow
 
-## Methods
-### RNA library
+## RNA library
