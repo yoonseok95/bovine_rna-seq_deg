@@ -4,13 +4,15 @@
 ## DEG Analysis pipline
 
 ## 1. RNA library construction and NGS
-  1-1. Importing data
+
+## 2. Data pre-processing
+  2-1. Importing data and download reference genome data
 ```
 cd /home/biolab302/jiyeon/fastp_input
 gunzip *.fq.gz
 ```
 
-  1-2. Quality contorl
+  2-2. Quality contorl
 ```
 for infile in *_1.fq; do base=$(basename ${infile} _1.fq); echo ${base}_1.fq; done
 
@@ -27,9 +29,6 @@ mkdir fastqc_results/
 fastqc -o /home/biolab302/jiyeon/fastqc_results/ *.fastq
 ```  
   - Viewing the FastQC results #check fastqc_html file out
-  
-## 2. Data pre-processing
-
 
 ## 3-1. Exploratory data analysis
 
