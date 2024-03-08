@@ -1,7 +1,8 @@
 # RNA-seq DEG analysis
   - focusing on the analysing differential expression genes associated with the increasing of intramuscular fat deposition in Korean native cattle
 
-## DEG Analysis pipline
+## DEG Analysis pipeline
+![workflow](RNA-seq_pipeline.png)
 
 ## 1. RNA library construction and NGS
 
