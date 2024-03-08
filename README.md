@@ -9,7 +9,7 @@
 ## 2. Data pre-processing
   2-1. Importing data and download reference genome data
 ```
-cd /home/biolab302/jiyeon/fastp_input
+cd /[directory_path]/fastp_input
 gunzip *.fq.gz
 ```
 
@@ -17,19 +17,21 @@ gunzip *.fq.gz
 ```
 for infile in *_1.fq; do base=$(basename ${infile} _1.fq); echo ${base}_1.fq; done
 
-for infile in *_1.fq; do base=$(basename ${infile} _1.fq); fastp -i ${base}_1.fq -I ${base}_2.fq -o /home/biolab302/jiyeon/${base}_trimmed_1.fastq -O /home/biolab302/jiyeon/${base}_trimmed_2.fastq --detect_adapter_for_pe --overrepresentation_analysis --correction --cut_right --thread 12 --html /home/biolab302/jiyeon/${base}_trimmed.fastp.html --json /home/biolab302/jiyeon/${base}_trimmed.fastp.json; done
+for infile in *_1.fq; do base=$(basename ${infile} _1.fq); fastp -i ${base}_1.fq -I ${base}_2.fq -o /[directory_path]/${base}_trimmed_1.fastq -O /[directory_path]/${base}_trimmed_2.fastq --detect_adapter_for_pe --overrepresentation_analysis --correction --cut_right --thread 12 --html /[directory_path]/${base}_trimmed.fastp.html --json /[directory_path]/${base}_trimmed.fastp.json; done
 
 mkdir fastq_results/
 
-mv *.html /home/biolab302/jiyeon/fastp_results
+mv *.html /[directory_path]/fastp_results
 
-mv *.json /home/biolab302/jiyeon/fastp_results
+mv *.json /[directory_path]/fastp_results
 
 mkdir fastqc_results/
 
-fastqc -o /home/biolab302/jiyeon/fastqc_results/ *.fastq
+fastqc -o /[directory_path]/ *.fastq
 ```  
   - Viewing the FastQC results #check fastqc_html file out
+
+  2-3. 
 
 ## 3-1. Exploratory data analysis
 
