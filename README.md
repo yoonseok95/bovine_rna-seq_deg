@@ -77,17 +77,28 @@ $ STAR \
   --sjdbGTFtagExonParentTranscript Parent \
   --sjdbOverhang 149 
 ```
+```
+Parameter		Description
+--runThreadN		Number of threads (processors) for mapping reads to a genome
+--runMode		run mode for STAR. genomeGenerate mode builds genome index
+--genomeDir		PATH to the directory where genome indices will be stored
+--genomeFastaFiles	reference genome file in FASTA format. You can also provide multiple genome files (separated by space) for index building.
+--sjdbGTFfile		GTF file for gene annotation. This is an optional parameter
+--sjdbOverhang		length of reads around the splice junctions. The ideal values should read length - 1 (or max read length - 1). 
+                        For example, if your read length is 150, the value should be 149. In most cases, 
+                        the default value of 100 also works.
+```
+
 ## 3-2. Mapping trimmed_fastq file to the ARS-UCD1.3 bovine reference genome
 ## 3-2-1 Description: STAR(Spliced Transcripts Alignment to a Reference) Aligner
   -. Seed searching : For every read that STAR aligns, STAR will search for the longest sequence that exactly matches one or more locations on the reference genome. These longest matching sequences are called the Maximal Mappable Prefixes (MMPs):
-
   -.Seed1(mapped to the reference genome), Seed2(Searching again for only unmapped portion of the read)
-
   -. Clustering, stitching and scoring : scoring based on mismatches, indels, gaps, etc. 
 ## 3-2-2 Two-pass alignment of RNA-seq reads with STAR
   -.The 1-pass mapping mode generates all required data essential for many downstream analyses such as differential gene expression analysis  
   -.robustly and accurately identify novel splice junction for differential splicing analysis and variant discovery
 
+### 1) Mapping
 ```
 $ cd 'trimmed data'
 $ for infile in *_1.fastq; \
@@ -121,20 +132,60 @@ $ for infile in *_1.fastq; \
 
 $ samtools view \
   ucd1.3_star_mapping_L_5th_19_ucd1.3_star_Aligned.sortedByCoord.out.bam|more
-
-Parameter		Description
---runThreadN		Number of threads (processors) for mapping reads to a genome
---runMode		run mode for STAR. genomeGenerate mode builds genome index
---genomeDir		PATH to the directory where genome indices will be stored
---genomeFastaFiles	reference genome file in FASTA format. You can also provide multiple genome files (separated by space) for index building.
---sjdbGTFfile		GTF file for gene annotation. This is an optional parameter
---sjdbOverhang		length of reads around the splice junctions. The ideal values should read length - 1 (or max read length - 1). 
-                        For example, if your read length is 150, the value should be 149. In most cases, 
-                        the default value of 100 also works.
+```
+ - Parameter description
+```
+--runThreadN		Number of threads (processors) for mapping reads to genome
+--readFilesIn		Read files for mapping to the genome. In case of paired-end reads, provide read1 and read2 files. 
+                        If there are multiple samples, separate files by a comma. For example, for paired-end reads, 
+                        --readFilesIn S1read1.fastq,S2read1.fastq S1read2.fastq,S2read2.fastq
+--genomeDir		PATH to the directory containing built genome indices
+--outSAMtype 		'BAM SortedByCoordinate' Output coordinate sorted BAM file which is useful for many downstream analyses. This is optional.
+--outSAMunmapped Within	Output unmapped reads from the main SAM file in SAM format. This is optional
+--outFileNamePrefix	Provide output file prefix name
 ```
 - STAR align하기(파일 형식에 맞는 옵션 사용): fastq파일, #gzip파일
 - samtools view: view first few alignment of BAM files
-
+- STAR output file: Parameter Description
+```
+seed_sampleAligned.sortedByCoord.out.bam	Alignment in BAM format (sorted by coordinate)
+seed_sampleLog.final.out			Alignment summary statistics such as uniquely mapped reads, percent mapping, number of unmapped reads, etc.
+seed_sampleLog.out				Alignment log for commands and parameters (useful in troubleshooting)
+seed_sampleLog.progress.out			Alignment progress report (e.g. number of reads processed during particular span of time, mapped and
+						unmapped reads, etc.)
+seed_sampleSJ.out.tab				Filtered splice junctions found during the mapping stage
+```
+  - Splice junctions.
+```
+SJ.out.tab contains high confidence collapsed splice junctions in tab-delimited format. Note that
+STAR defines the junction start/end as intronic bases, while many other software define them as
+exonic bases. The columns have the following meaning:
+column 1: chromosome
+column 2: first base of the intron (1-based)
+column 3: last base of the intron (1-based)
+column 4: strand (0: undefined, 1: +, 2: -)
+column 5: intron motif: 0: non-canonical; 1: GT/AG, 2: CT/AC, 3: GC/AG, 4: CT/GC, 5:
+AT/AC, 6: GT/AT
+column 6: 0: unannotated, 1: annotated (only if splice junctions database is used)
+column 7: number of uniquely mapping reads crossing the junction
+column 8: number of multi-mapping reads crossing the junction
+column 9: maximum spliced alignment overhang
+The filtering for this output file is controlled by the --outSJfilter* parameters, as described in Section 14.16. Output Filtering: Splice Junctions.
+```
+```
+$ iyoonseok95@yoonseok95:/mnt/sdb1/hanwoo_mRNA_DEG/umd3.1.1_star_mapping$ cat  hw_highlow_umd3.1.1SJ.out.tab|head
+chromosome
+AC_000158.1	125015	135819	2	2	1	6	0	71
+AC_000158.1	136002	137157	2	2	1	12	0	66
+AC_000158.1	137265	137833	2	2	1	9	0	66
+AC_000158.1	137265	138874	2	2	0	1	0	13
+AC_000158.1	137960	138874	2	2	1	5	0	75
+AC_000158.1	138985	178432	2	2	1	3	0	70
+AC_000158.1	242647	254558	1	1	0	2	0	41
+AC_000158.1	242647	254564	1	1	0	1	0	59
+AC_000158.1	242647	275622	1	1	0	9	0	58
+AC_000158.1	242647	318512	1	1	0	2	0	56
+```
 ## 3-3. Re-buliding genome index using SJ.out_filtered.tab file
 ```
 $ cd ucd1.3_star_mapping
