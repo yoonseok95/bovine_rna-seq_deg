@@ -20,7 +20,7 @@ $ gunzip *.fq.gz
 add how to download bovine reference genome seq
 ```
   - Reference sequence  
-  - UMD3.1 release 78   \\   
+  - UMD3.1 release 78      
     GenBank : GCA_000003055.5              
     RefSeq : GCF_000003055.6   
     Name : Bos_taurus_UMD_3.1.1 (Data Nov 25, 2014)    
@@ -30,10 +30,10 @@ add how to download bovine reference genome seq
     RefSeq : GCF_002263795.1     
     Name : bosTau9 (NCBI Annotation Release 106)     
 
-  - bosTau9 (ARS_UCD1.3)   
-    GenBank : GCA_002263795.3
-    RefSeq : GCF_002263795.2
-    Name : NCBI eukaryotic genome annotation pipeline
+  - bosTau9 (ARS_UCD1.3)      
+    GenBank : GCA_002263795.3   
+    RefSeq : GCF_002263795.2   
+    Name : NCBI eukaryotic genome annotation pipeline   
 
 ## 2-2. Quality contorl
 ```
@@ -148,9 +148,10 @@ Parameter   description
 ```
 - STAR align하기(파일 형식에 맞는 옵션 사용): fastq파일, #gzip파일
 - samtools view: view first few alignment of BAM files
-- STAR output file: Parameter Description
+- STAR output file 
 ```
-seed_sampleAligned.sortedByCoord.out.bam	Alignment in BAM format (sorted by coordinate)
+Parameter   Description
+seed_sampleAligned.sortedByCoord.out.bam	    Alignment in BAM format (sorted by coordinate)
 seed_sampleLog.final.out			Alignment summary statistics such as uniquely mapped reads, percent mapping, number of unmapped reads, etc.
 seed_sampleLog.out				Alignment log for commands and parameters (useful in troubleshooting)
 seed_sampleLog.progress.out			Alignment progress report (e.g. number of reads processed during particular span of time, mapped and
@@ -188,7 +189,7 @@ AC_000158.1	242647	254564	1	1	0	1	0	59
 AC_000158.1	242647	275622	1	1	0	9	0	58
 AC_000158.1	242647	318512	1	1	0	2	0	56
 ```
-## 3-3. Re-buliding genome index using SJ.out_filtered.tab file
+### 2) Re-buliding genome index using SJ.out_filtered.tab file
 ```
 $ cd ucd1.3_star_mapping
 
@@ -215,7 +216,9 @@ $ cat *.tab \
 | uniq > hw_highlow_SJ.out_filtered.tab
 
 $ cd [directory_path]
-
+```
+### 3) Build genome index with filtered output 
+```
 $ STAR \
   --runThreadN 12 \
   --runMode genomeGenerate \
@@ -225,11 +228,10 @@ $ STAR \
   --sjdbFileChrStartEnd /[direcotry_path]/hw_highlow_SJ.out_filtered.tab \
   --sjdbOverhang 149
 ```
-- Build genome index with filtered output 
 
 ![alt text](mapped_read.png)
 
-## 3-4. Mapping reads to the reference genome 2nd pass
+### 4) Mapping reads to the reference genome 2nd pass
 ```
 $ cd 'trimmed data’
 
@@ -265,12 +267,12 @@ $ cat sample_5th_9_star2pass_filteredLog.final.out
 ```
 
 
-## 3-5. Counting the read mapped to the reference genome sequence
-  - Installation of htseq-count tool
+## 4. Counting the read mapped to the reference genome sequence
+### 4-1. Installation of htseq-count tool
 ```
 $ pip install HTseq
 ```
-  - Indexing bam file
+### 4-2. Indexing bam file
 ```
 $ cd [directory_paht]
 
@@ -284,7 +286,7 @@ $ for infile in *_filteredAligned.sortedByCoord.out.bam; \
   samtools index ${base}_filteredAligned.sortedByCoord.out.bam; \
   done
 ```
-  - Filtering genomic.gff file
+### 4-3. Filtering genomic.gff file
 ```
 $ cd /home/biolab302/바탕화면/jiyeon/ncbi_dataset/data/GCF_002263795.2
 
@@ -292,7 +294,7 @@ $ awk '/gene/' ./genomic.gff > genomic_gene.gff
 
 $ cat genomic_gene.gff |more
 ```
-  - mRNA quantification
+### 4-4. mRNA quantification
 ```
 $ cd /home/biolab302/바탕화면/jiyeon/analysis_file/ucd1.3_star_mapping
 
@@ -314,13 +316,13 @@ $ for infile in *_filteredAligned.sortedByCoord.out.bam; \
   --add-chromosome-info ${base}_filteredAligned.sortedByCoord.out.bam /[directory_path]/genomic_gene.gff > ${base}_htseq-count.tsv; \
   done
 ```
-## 4. Expression analysis of DEGs (in R)
+## 5. Expression analysis of DEGs (in R)
   - See 'htseq-count_merge.R' file 
 
-## 5. Normalization(R/FKM, TPM)
+## 6. Normalization(R/FKM, TPM)
   - See 'Normalization_RPKM_TPM.R' file
 
-## 5-1. Pattern between sample with high and low group
+## 6-1. Pattern between sample with high and low group
   - See 'expression_level_EDA.R' file
   - [best.sample.combination](https://bioinformatics-core-shared-training.github.io/Merged_RNASeq-course/html/02_Preprocessing_Data.nb.html)
   - Libarary size and distribution plots
@@ -330,10 +332,10 @@ $ for infile in *_filteredAligned.sortedByCoord.out.bam; \
   - QC of RNA-seq reads: distance between reads with high and low MS
 ![MA and volcano plot](volcano_plot.png)
 
-## 6. DEG analysis
+## 7. DEG analysis
   - See 'DEG.R' file
 
-## 7. GO(Gene ontology) and KEGG analysis
+## 8. GO(Gene ontology) and KEGG analysis
   - See 'GO_KEGG_visualization.R' file
 ![GO result](GO_sample.png)
 ![KEGG result](KEGG.png)
