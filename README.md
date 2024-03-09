@@ -19,15 +19,17 @@ $ gunzip *.fq.gz
 ```
 add how to download bovine reference genome seq
 ```
-  - Reference sequence
-  -. UMD3.1 release 78    
-     GenBank : GCA_000003055.5  
+  - Reference sequence  
+  -. UMD3.1 release 78
+     GenBank : GCA_000003055.5           
      RefSeq : GCF_000003055.6
      Name : Bos_taurus_UMD_3.1.1 (Data Nov 25, 2014) 
+
   -. bosTau9 (ARS_UCD1.2)
      GenBank : GCA_002263795.2
      RefSeq : GCF_002263795.1
      Name : bosTau9 (NCBI Annotation Release 106)
+
   -. bosTau9 (ARS_UCD1.3)
      GenBank : GCA_002263795.3
      RefSeq : GCF_002263795.2
