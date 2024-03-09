@@ -222,5 +222,4 @@ $ for infile in *_filteredAligned.sortedByCoord.out.bam; \
   --add-chromosome-info ${base}_filteredAligned.sortedByCoord.out.bam /[directory_path]/genomic_gene.gff > ${base}_htseq-count.tsv; \
   done
 ```
-
-
+## 4. Expression analysis of DEGs (in R)
