@@ -16,6 +16,22 @@
 $ cd /[directory_path]/fastp_input
 $ gunzip *.fq.gz
 ```
+```
+add how to download bovine reference genome seq
+```
+  - Reference sequence
+  -. UMD3.1 release 78    
+     GenBank : GCA_000003055.5  
+     RefSeq : GCF_000003055.6
+     Name : Bos_taurus_UMD_3.1.1 (Data Nov 25, 2014) 
+  -. bosTau9 (ARS_UCD1.2)
+     GenBank : GCA_002263795.2
+     RefSeq : GCF_002263795.1
+     Name : bosTau9 (NCBI Annotation Release 106)
+  -. bosTau9 (ARS_UCD1.3)
+     GenBank : GCA_002263795.3
+     RefSeq : GCF_002263795.2
+     Name : NCBI eukaryotic genome annotation pipeline
 
 ## 2-2. Quality contorl
 ```
@@ -48,15 +64,6 @@ $ fastqc -o /[directory_path]/ *.fastq
 ```  
   - Viewing the FastQC results #check fastqc_html file out
 
-## 2-3. Libarary size and distribution plots
-  [best.sample.combination](https://bioinformatics-core-shared-training.github.io/Merged_RNASeq-course/html/02_Preprocessing_Data.nb.html)
-  - To construct best sample combination in total reads through quality control
-
-![Multidimensional scalliing](MDS.png)
-  - QC of RNA-seq reads: distance between reads with high and low MS
-
-![MA and volcano plot](volcano_plot.png)
-
 ## 3. Estimation of gene expression level
 ## 3-1. Building the STAR index
 ```
@@ -71,6 +78,15 @@ $ STAR \
   --sjdbOverhang 149 
 ```
 ## 3-2. Mapping trimmed_fastq file to the ARS-UCD1.3 bovine reference genome
+## 3-2-1) Description: STAR(Spliced Transcripts Alignment to a Reference) Aligner
+  -. Seed searching : For every read that STAR aligns, STAR will search for the longest sequence that exactly matches one or more locations on the reference genome. These longest matching sequences are called the Maximal Mappable Prefixes (MMPs):
+  -.Seed1(mapped to the reference genome), Seed2(Searching again for only unmapped portion of the read)
+  -. Clustering, stitching and scoring : scoring based on mismatches, indels, gaps, etc. 
+## 3-2-2 Two-pass alignment of RNA-seq reads with STAR
+  (1) Introduction
+-.The 1-pass mapping mode generates all required data essential for many downstream analyses such as differential gene expression analysis
+-.robustly and accurately identify novel splice junction for differential splicing analysis and variant discovery
+
 ```
 $ cd 'trimmed data'
 $ for infile in *_1.fastq; \
@@ -243,6 +259,12 @@ $ for infile in *_filteredAligned.sortedByCoord.out.bam; \
 ## 5-1. Pattern between sample with high and low group
   - See 'expression_level_EDA.R' file
   - [best.sample.combination](https://bioinformatics-core-shared-training.github.io/Merged_RNASeq-course/html/02_Preprocessing_Data.nb.html)
+  - Libarary size and distribution plots
+  [best.sample.combination](https://bioinformatics-core-shared-training.github.io/Merged_RNASeq-course/html/02_Preprocessing_Data.nb.html)
+  - To construct best sample combination in total reads through quality control
+![Multidimensional scalliing](MDS.png)
+  - QC of RNA-seq reads: distance between reads with high and low MS
+![MA and volcano plot](volcano_plot.png)
 
 ## 6. DEG analysis
   - See 'DEG.R' file
@@ -251,3 +273,9 @@ $ for infile in *_filteredAligned.sortedByCoord.out.bam; \
   - See 'GO_KEGG_visualization.R' file
 ![GO result](GO_sample.png)
 ![KEGG result](KEGG.png)
+
+
+## Reference
+[RNAseq_QC_HISAT2_DEseq2](https://www.nature.com/articles/s41597-022-01149-0)
+
+
