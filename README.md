@@ -7,6 +7,8 @@
 ![alt text](RNA-seq_DEG_pipeline.png)
 
 ## 1. RNA library construction and NGS
+## 1-1. Sample
+![alt text](sample.png)
 
 ## 2. Data pre-processing
 ## 2-1. Importing data and download reference genome data
@@ -46,7 +48,14 @@ $ fastqc -o /[directory_path]/ *.fastq
 ```  
   - Viewing the FastQC results #check fastqc_html file out
 
-## 2-3. 
+## 2-3. Libarary size and distribution plots
+  [best.sample.combination](https://bioinformatics-core-shared-training.github.io/Merged_RNASeq-course/html/02_Preprocessing_Data.nb.html)
+  - To construct best sample combination in total reads through quality control
+
+![Multidimensional scalliing](MDS.png)
+  - QC of RNA-seq reads: distance between reads with high and low MS
+
+![MA and volcano plot](volcano_plot.png)
 
 ## 3. Estimation of gene expression level
 ## 3-1. Building the STAR index
@@ -138,6 +147,8 @@ $ STAR \
 ```
 - Build genome index with filtered output 
 
+![alt text](mapped_read.png)
+
 ## 3-4. Mapping reads to the reference genome 2nd pass
 ```
 $ cd 'trimmed data’
@@ -172,6 +183,7 @@ $ for infile in *_1.fastq; \
 
 $ cat sample_5th_9_star2pass_filteredLog.final.out
 ```
+
 
 ## 3-5. Counting the read mapped to the reference genome sequence
   - Installation of htseq-count tool
@@ -223,13 +235,19 @@ $ for infile in *_filteredAligned.sortedByCoord.out.bam; \
   done
 ```
 ## 4. Expression analysis of DEGs (in R)
-  - Refer to the 'htseq-count_merge.R' file 
+  - See 'htseq-count_merge.R' file 
 
 ## 5. Normalization(R/FKM, TPM)
-  - Refer to the 'Normalization_RPKM_TPM.R' file
+  - See 'Normalization_RPKM_TPM.R' file
+
+## 5-1. Pattern between sample with high and low group
+  - See 'expression_level_EDA.R' file
+  - [best.sample.combination](https://bioinformatics-core-shared-training.github.io/Merged_RNASeq-course/html/02_Preprocessing_Data.nb.html)
+
+
 
 ## 6. DEG analysis
-  - Refer to the 'DEG.R' file
+  - See 'DEG.R' file
 
 ## 7. GO(Gene ontology) and KEGG analysis
-  - Refer to the 'GO_KEGG_visualization.R' file
+  - See 'GO_KEGG_visualization.R' file
