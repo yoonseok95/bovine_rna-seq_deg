@@ -223,3 +223,13 @@ $ for infile in *_filteredAligned.sortedByCoord.out.bam; \
   done
 ```
 ## 4. Expression analysis of DEGs (in R)
+  - Refer to the 'htseq-count_merge.R' file 
+
+## 5. Normalization(R/FKM, TPM)
+  - Refer to the 'Normalization_RPKM_TPM.R' file
+
+## 6. DEG analysis
+  - Refer to the 'DEG.R' file
+
+## 7. GO(Gene ontology) and KEGG analysis
+  - Refer to the 'GO_KEGG_visualization.R' file
