@@ -244,10 +244,10 @@ $ for infile in *_filteredAligned.sortedByCoord.out.bam; \
   - See 'expression_level_EDA.R' file
   - [best.sample.combination](https://bioinformatics-core-shared-training.github.io/Merged_RNASeq-course/html/02_Preprocessing_Data.nb.html)
 
-
-
 ## 6. DEG analysis
   - See 'DEG.R' file
 
 ## 7. GO(Gene ontology) and KEGG analysis
   - See 'GO_KEGG_visualization.R' file
+![GO result](GO_sample.png)
+![KEGG result](KEGG.png)
