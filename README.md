@@ -133,8 +133,8 @@ $ for infile in *_1.fastq; \
 $ samtools view \
   ucd1.3_star_mapping_L_5th_19_ucd1.3_star_Aligned.sortedByCoord.out.bam|more
 ```
- - Parameter description
 ```
+Parameter   description
 --runThreadN		Number of threads (processors) for mapping reads to genome
 --readFilesIn		Read files for mapping to the genome. In case of paired-end reads, provide read1 and read2 files. 
                         If there are multiple samples, separate files by a comma. For example, for paired-end reads, 
