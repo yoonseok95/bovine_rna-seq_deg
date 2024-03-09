@@ -78,14 +78,16 @@ $ STAR \
   --sjdbOverhang 149 
 ```
 ## 3-2. Mapping trimmed_fastq file to the ARS-UCD1.3 bovine reference genome
-## 3-2-1) Description: STAR(Spliced Transcripts Alignment to a Reference) Aligner
+## 3-2-1 Description: STAR(Spliced Transcripts Alignment to a Reference) Aligner
   -. Seed searching : For every read that STAR aligns, STAR will search for the longest sequence that exactly matches one or more locations on the reference genome. These longest matching sequences are called the Maximal Mappable Prefixes (MMPs):
+
   -.Seed1(mapped to the reference genome), Seed2(Searching again for only unmapped portion of the read)
+  
   -. Clustering, stitching and scoring : scoring based on mismatches, indels, gaps, etc. 
 ## 3-2-2 Two-pass alignment of RNA-seq reads with STAR
   (1) Introduction
--.The 1-pass mapping mode generates all required data essential for many downstream analyses such as differential gene expression analysis
--.robustly and accurately identify novel splice junction for differential splicing analysis and variant discovery
+  -.The 1-pass mapping mode generates all required data essential for many downstream analyses such as differential gene expression analysis
+  -.robustly and accurately identify novel splice junction for differential splicing analysis and variant discovery
 
 ```
 $ cd 'trimmed data'
