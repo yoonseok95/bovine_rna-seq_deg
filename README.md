@@ -82,11 +82,10 @@ $ STAR \
   -. Seed searching : For every read that STAR aligns, STAR will search for the longest sequence that exactly matches one or more locations on the reference genome. These longest matching sequences are called the Maximal Mappable Prefixes (MMPs):
 
   -.Seed1(mapped to the reference genome), Seed2(Searching again for only unmapped portion of the read)
-  
+
   -. Clustering, stitching and scoring : scoring based on mismatches, indels, gaps, etc. 
 ## 3-2-2 Two-pass alignment of RNA-seq reads with STAR
-  (1) Introduction
-  -.The 1-pass mapping mode generates all required data essential for many downstream analyses such as differential gene expression analysis
+  -.The 1-pass mapping mode generates all required data essential for many downstream analyses such as differential gene expression analysis  
   -.robustly and accurately identify novel splice junction for differential splicing analysis and variant discovery
 
 ```
@@ -122,6 +121,16 @@ $ for infile in *_1.fastq; \
 
 $ samtools view \
   ucd1.3_star_mapping_L_5th_19_ucd1.3_star_Aligned.sortedByCoord.out.bam|more
+
+Parameter		Description
+--runThreadN		Number of threads (processors) for mapping reads to a genome
+--runMode		run mode for STAR. genomeGenerate mode builds genome index
+--genomeDir		PATH to the directory where genome indices will be stored
+--genomeFastaFiles	reference genome file in FASTA format. You can also provide multiple genome files (separated by space) for index building.
+--sjdbGTFfile		GTF file for gene annotation. This is an optional parameter
+--sjdbOverhang		length of reads around the splice junctions. The ideal values should read length - 1 (or max read length - 1). 
+                        For example, if your read length is 150, the value should be 149. In most cases, 
+                        the default value of 100 also works.
 ```
 - STAR align하기(파일 형식에 맞는 옵션 사용): fastq파일, #gzip파일
 - samtools view: view first few alignment of BAM files
