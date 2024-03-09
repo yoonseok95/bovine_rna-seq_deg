@@ -1,0 +1,759 @@
+# Introduction
+  -. Normalization : Read counts need to be properly normalized to extract meaningful expression estimates
+  -. FPKM (Fragment per Kilobase of transcript per Million mapped reads)
+     FPKM-UQ (upper quartile normalized FPKM)
+     TPM (Transcripts per Million)
+  -. RNA-seq is generally considered the gold standard for whole transcriptome gene expression quantification, not only in research but also for clinical applications. (compared to microarrays)
+  -. RNA sequencing (massively parallel sequencing) that span two exons will have a hard time mapping to the genome, which still contains the code for introns
+  -. One solution is to map the RNA sequence data to the predicted RNA molecules. However there are several disadvantages of mapping the RNA sequence directly to the predicted transcripts:
+     1) We have to rely on the accuracy of the gene structure prediction method. Many genes structures are incomplete and also inaccurate
+     2) The genes we identify in the RNA samples may not be annotated in genome yet. In this case, we would completely miss the gene from our analysis
+     3) Mpping the sequence to the genome can help us identify the genes that are missing from our annotation or annotated incorrectly
+
+# Processing of DEG RNA-seq (Genome mapping)
+
+Step 1. Pre-processing & RNA sequencing using TruSeq RNA library Prep Kit
+1) sample : marbling with a high score of '9' (n=9) and with a lower score of '2' and '1' (n=5) Total n=14
+/mnt/sdb1/hanwoo_mRNA_fasta/raw\ data/TBD230546_17828_20230531/Sample_sample_2nd_2_small/sample_2th_2_1.fq.gz 
+/mnt/sdb1/hanwoo_mRNA_fasta/raw\c data/TBD230546_17828_20230531/Sample_sample_2nd_2_small/sample_2th_2_2.fq.gz 
+$ cd /mnt/sdb1/hanwoo_mRNA_fasta/raw\ data/TBD230546_17829_20230531
+$ cp sample_2nd_2_1.fq.gz sample_2nd_2_2.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/
+$ cp sample_2nd_8_1.fq.gz sample_2nd_8_2.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/
+$ cp sample_2nd_12_1.fq.gz sample_2nd_12_2.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/
+$ cp sample_2nd_16_1.fq.gz sample_2nd_16_2.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/
+$ cp sample_3rd_4_1.fq.gz sample_3rd_4_2.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/
+$ cp sample_3rd_8_1.fq.gz sample_3rd_8_2.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/
+$ cp sample_3rd_14_1.fq.gz sample_3rd_14_2.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/
+$ cp sample_3rd_17_1.fq.gz sample_3rd_17_2.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/
+$ cp sample_3rd_20_1.fq.gz sample_3rd_20_2.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/
+$ cp sample_4th_14_1.fq.gz sample_4th_14_2.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/
+$ cp sample_4th_17_1.fq.gz sample_4th_17_2.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/
+$ cp sample_5th_9_1.fq.gz sample_5th_9_2.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/
+$ cp sample_5th_10_1.fq.gz sample_5th_10_2.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/
+$ cp sample_5th_19_1.fq.gz sample_5th_19_2.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/
+/mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_h9_2th_02_1.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_h9_2th_02_2.fq.gz 
+/mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_h9_2th_08_1.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_h9_2th_08_2.fq.gz 
+/mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_h9_2th_12_1.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_h9_2th_12_2.fq.gz 
+/mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_h9_2th_16_1.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_h9_2th_16_2.fq.gz 
+/mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_h9_3rd_14_1.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_h9_3rd_14_2.fq.gz 
+/mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_h9_3rd_17_1.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_h9_3rd_17_2.fq.gz 
+/mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_h9_4th_14_1.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_h9_4th_14_2.fq.gz 
+/mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_h9_5th_09_1.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_h9_5th_09_2.fq.gz 
+/mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_h9_5th_10_1.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_h9_5th_10_2.fq.gz 
+/mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_l2_3rd_04_1.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_l2_3rd_04_2.fq.gz 
+/mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_l2_3rd_08_1.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_l2_3rd_08_2.fq.gz 
+/mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_l1_3rd_20_1.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_l1_3rd_20_2.fq.gz 
+/mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_l1_4th_17_1.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_l1_4th_17_2.fq.gz 
+/mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_l1_5th_19_1.fq.gz /mnt/sdb1/hanwoo_mRNA_fasta/untrimmed_mRNA_fastp/hw_l1_5th_19_2.fq.gz 
+
+2) Fastq quality control (QC) 
+-. Sequecing_statistic results from sequence's company / and Trimming adapter seq et al.,........
+$ fastqc -o /mnt/sdb1/hanwoo_mRNA_DEG/fastqc *.fq.gz
+# Quality control of untrimmed_fastq for RNA-seq
+$ for infile in *_1.fq.gz; do base=$(basename ${infile} _1.fq.gz); echo ${base}; done 
+$ for R1 in Raw_Reads/*.fq.gz; do R2=$(echo $R1| sed 's/_R1_/_R2_/'); name=$(echo $R1|sed 's/_R1_001.fastq.gz//'|sed 's/Raw_Reads\///'); done
+$ for infile in *_1.fq.gz; do base=$(basename ${infile} _1.fq.gz); fastp -i ${base}_1.fq.gz -I ${base}_2.fq.gz -o /mnt/sdb1/hanwoo_mRNA_DEG/trimmed_fastq/${base}_trimmed_1.fq.gz -O /mnt/sdb1/hanwoo_mRNA_DEG/trimmed_fastq/${base}_trimmed_2.fq.gz --detect_adapter_for_pe --overrepresentation_analysis --correction --cut_right --thread 16 --html /mnt/sdb1/hanwoo_mRNA_DEG/fastp_result/${base}_trimmed.fastp.html --json /mnt/sdb1/hanwoo_mRNA_DEG/fastp_result/${base}_trimmed.fastp.json; done
+
+remove poly A tail sequence -> because of mapping read to the reference genome sequence
+
+/mnt/sdb1/hanwoo_mRNA_DEG/trimmed_fastq
+/mnt/sdb1/hanwoo_mRNA_DEG/fastp_result
+
+move this file to directory '
+$ /mnt/sdb1/hanwoo_mRNA_fasta
+
+Step 2. Mapping Trimmed RNA sequence to the reference sequence
+1) Reference sequence
+  -. UMD3.1 release 78    
+     GenBank : GCA_000003055.5  
+     RefSeq : GCF_000003055.6
+     Name : Bos_taurus_UMD_3.1.1 (Data Nov 25, 2014) 
+  -. bosTau9 (ARS_UCD1.2)
+     GenBank : GCA_002263795.2
+     RefSeq : GCF_002263795.1
+     Name : bosTau9 (NCBI Annotation Release 106)
+  -. bosTau9 (ARS_UCD1.3)
+     GenBank : GCA_002263795.3
+     RefSeq : GCF_002263795.2
+     Name : NCBI eukaryotic genome annotation pipeline
+--------------------------------------------------------------------------------------------------------     
+[Command line]
+$ datasets download genome accession GCF_002263795.2 --include gff3,rna,cds,protein,genome,seq-report --filename GCF_002263795.2.zip
+$ conda activate ncbi_datasets
+$ datasets download genome accession GCF_002263795.2 --filename GCF_002263795.2.zip
+--------------------------------------------------------------------------------------------------------
+2) STAR(Spliced Transcripts Alignment to a Reference) Aligner
+  -. Seed searching : For every read that STAR aligns, STAR will search for the longest sequence that exactly matches one or more locations on the reference genome. These longest matching sequences are called the Maximal Mappable Prefixes (MMPs):
+  -.Seed1(mapped to the reference genome), Seed2(Searching again for only unmapped portion of the read)
+  -. Clustering, stitching and scoring : scoring based on mismatches, indels, gaps, etc.
+
+3) Two-pass alignment of RNA-seq reads with STAR
+  (1) Introduction
+-.The 1-pass mapping mode generates all required data essential for many downstream analyses such as differential gene expression analysis
+-.robustly and accurately identify novel splice junction for differential splicing analysis and variant discovery
+  (2) Workflow
+3-1) Building the STAR index
+-----------------------------------------------------------------------------------------------------------------
+Command line
+$ STAR --runThreadN 12 --runMode genomeGenerate --genomeDir /home/iyoonseok95/b_taurus_ref/umd3.1.1/index_gff --genomeFastaFiles GCF_000003055.6_Bos_taurus_UMD_3.1.1_genomic.fna --sjdbGTFfile genomic.gff --sjdbGTFtagExonParentTranscript Parent --sjdbOverhang 149
+-----------------------------------------------------------------------------------------------------------------
+Parameter		Description
+--runThreadN		Number of threads (processors) for mapping reads to a genome
+--runMode		run mode for STAR. genomeGenerate mode builds genome index
+--genomeDir		PATH to the directory where genome indices will be stored
+--genomeFastaFiles	reference genome file in FASTA format. You can also provide multiple genome files (separated by space) for index building.
+--sjdbGTFfile		GTF file for gene annotation. This is an optional parameter
+--sjdbOverhang		length of reads around the splice junctions. The ideal values should read length - 1 (or max read length - 1). 
+                        For example, if your read length is 150, the value should be 149. In most cases, 
+                        the default value of 100 also works.
+
+3-2) Mapping trimmed_fastq file to the umd3.1.1 reference genome using STAR Aligner
+-----------------------------------------------------------------------------------------------------------------
+Command line
+$ cd /mnt/sdb1/hanwoo_mRNA_DEG/trimmed_fastq
+$ for infile in *_1.fq.gz; do base=$(basename ${infile} _trimmed_1.fq.gz); echo ${base}; done 
+hw_high_20002
+hw_high_20008
+hw_high_20012
+hw_high_20016
+hw_high_30014
+hw_high_30017
+hw_high_40014
+hw_high_50009
+hw_high_50010
+hw_low_30004
+hw_low_30008
+hw_low_30020
+hw_low_40017
+hw_low_50019
+$ for infile in *_1.fq.gz; do base=$(basename ${infile} _trimmed_1.fq.gz); STAR --runThreadN 12 --genomeDir /home/iyoonseok95/b_taurus_ref/umd3.1.1/index_gff --sjdbGTFfile /home/iyoonseok95/b_taurus_ref/umd3.1.1/ncbi_dataset/data/GCF_000003055.6/genomic.gff --readFilesIn ${base}_trimmed_1.fq.gz ${base}_trimmed_2.fq.gz --twopassMode Basic --outFileNamePrefix /mnt/sdb1/hanwoo_mRNA_DEG/umd3.1.1_star_mapping/230921/${base}_umd3.1_star_ --outSAMtype BAM SortedByCoordinate --readFilesCommand zcat; done
+-----------------------------------------------------------------------------------------------------------------
+--runThreadN 12 
+--genomeDir /home/iyoonseok95/b_taurus_ref/umd3.1.1/RNAseq_ref_index 
+--sjdbGTFfile /home/iyoonseok95/b_taurus_ref/umd3.1.1/ncbi_dataset/data/GCF_000003055.6/genomic.gff 
+--readFilesIn ${base}_trimmed_1.fq.gz ${base}_trimmed_2.fq.gz 
+--twopassMode Basic 
+--outFileNamePrefix /mnt/sdb1/hanwoo_mRNA_DEG/umd3.1.1_mapping/${base}_umd3.1_star 
+--outSAMtype BAM SortedByCoordinate 
+--readFilesCommand zcat
+
+Parameter		Description
+--runThreadN		Number of threads (processors) for mapping reads to genome
+--readFilesIn		Read files for mapping to the genome. In case of paired-end reads, provide read1 and read2 files. 
+                        If there are multiple samples, separate files by a comma. For example, for paired-end reads, 
+                        --readFilesIn S1read1.fastq,S2read1.fastq S1read2.fastq,S2read2.fastq
+--genomeDir		PATH to the directory containing built genome indices
+--outSAMtype 		'BAM SortedByCoordinate' Output coordinate sorted BAM file which is useful for many downstream analyses. This is optional.
+--outSAMunmapped Within	Output unmapped reads from the main SAM file in SAM format. This is optional
+--outFileNamePrefix	Provide output file prefix name
+
+  -. STAR output file
+Parameter					Description
+seed_sampleAligned.sortedByCoord.out.bam	Alignment in BAM format (sorted by coordinate)
+seed_sampleLog.final.out			Alignment summary statistics such as uniquely mapped reads, percent mapping, number of unmapped reads, etc.
+seed_sampleLog.out				Alignment log for commands and parameters (useful in troubleshooting)
+seed_sampleLog.progress.out			Alignment progress report (e.g. number of reads processed during particular span of time, mapped and
+						unmapped reads, etc.)
+seed_sampleSJ.out.tab				Filtered splice junctions found during the mapping stage
+
+  -. Splice junctions.
+SJ.out.tab contains high confidence collapsed splice junctions in tab-delimited format. Note that
+STAR defines the junction start/end as intronic bases, while many other software define them as
+exonic bases. The columns have the following meaning:
+column 1: chromosome
+column 2: first base of the intron (1-based)
+column 3: last base of the intron (1-based)
+column 4: strand (0: undefined, 1: +, 2: -)
+column 5: intron motif: 0: non-canonical; 1: GT/AG, 2: CT/AC, 3: GC/AG, 4: CT/GC, 5:
+AT/AC, 6: GT/AT
+column 6: 0: unannotated, 1: annotated (only if splice junctions database is used)
+column 7: number of uniquely mapping reads crossing the junction
+column 8: number of multi-mapping reads crossing the junction
+column 9: maximum spliced alignment overhang
+The filtering for this output file is controlled by the --outSJfilter* parameters, as described in
+Section 14.16. Output Filtering: Splice Junctions.
+iyoonseok95@yoonseok95:/mnt/sdb1/hanwoo_mRNA_DEG/umd3.1.1_star_mapping$ cat  hw_highlow_umd3.1.1SJ.out.tab|head
+chromosome
+AC_000158.1	125015	135819	2	2	1	6	0	71
+AC_000158.1	136002	137157	2	2	1	12	0	66
+AC_000158.1	137265	137833	2	2	1	9	0	66
+AC_000158.1	137265	138874	2	2	0	1	0	13
+AC_000158.1	137960	138874	2	2	1	5	0	75
+AC_000158.1	138985	178432	2	2	1	3	0	70
+AC_000158.1	242647	254558	1	1	0	2	0	41
+AC_000158.1	242647	254564	1	1	0	1	0	59
+AC_000158.1	242647	275622	1	1	0	9	0	58
+AC_000158.1	242647	318512	1	1	0	2	0	56
+
+-----------------------------------------------------------------------------------------------------------------
+Command line
+$ cd /mnt/sdb1/hanwoo_mRNA_DEG/umd3.1.1_star_mapping/230921
+$ iyoonseok95@yoonseok95:/mnt/sdb1/hanwoo_mRNA_DEG/umd3.1.1_star_mapping/230921$ cat hw_low_50019_umd3.1_star_Log.final.out
+                                 Started job on |	Sep 22 00:08:36
+                             Started mapping on |	Sep 22 00:25:15
+                                    Finished on |	Sep 22 01:00:23
+       Mapping speed, Million of reads per hour |	50.89
+
+                          Number of input reads |	29800885
+                      Average input read length |	277
+                                    UNIQUE READS:
+                   Uniquely mapped reads number |	28316171
+                        Uniquely mapped reads % |	95.02%
+                          Average mapped length |	277.24
+                       Number of splices: Total |	39020250
+            Number of splices: Annotated (sjdb) |	38994920
+                       Number of splices: GT/AG |	38647807
+                       Number of splices: GC/AG |	299259
+                       Number of splices: AT/AC |	13566
+               Number of splices: Non-canonical |	59618
+                      Mismatch rate per base, % |	0.10%
+                         Deletion rate per base |	0.01%
+                        Deletion average length |	2.00
+                        Insertion rate per base |	0.00%
+                       Insertion average length |	1.49
+                             MULTI-MAPPING READS:
+        Number of reads mapped to multiple loci |	701129
+             % of reads mapped to multiple loci |	2.35%
+        Number of reads mapped to too many loci |	135303
+             % of reads mapped to too many loci |	0.45%
+                                  UNMAPPED READS:
+  Number of reads unmapped: too many mismatches |	0
+       % of reads unmapped: too many mismatches |	0.00%
+            Number of reads unmapped: too short |	449721
+                 % of reads unmapped: too short |	1.51%
+                Number of reads unmapped: other |	198561
+                     % of reads unmapped: other |	0.67%
+                                  CHIMERIC READS:
+                       Number of chimeric reads |	0
+                            % of chimeric reads |	0.00%
+-----------------------------------------------------------------------------------------------------------------
+# view first few alignment of BAM files
+$ iyoonseok95@yoonseok95:/mnt/sdb1/hanwoo_mRNA_DEG/umd3.1.1_star_mapping/230921$ samtools view hw_low_50019_umd3.1_star_Aligned.sortedByCoord.out.bam|more
+A01944:91:HTKKHDSX5:4:1460:24740:3129	99	AC_000158.1	51286	255	151M	=	51323	188	GGGGTGCAAGGGAGGGAAGCTC
+ATGGGGGAAGGAACATATGCACATCCATGCCTGCTTCATGGTGTTGTATGGCAGAAACCAACACAACACTGCAAATTAAACACTCCAGTTAGAAAAGTAACACAGTCTCTCTGGAGAGAGGAGCTACAT	FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF	NH:i:1	HI:i:1	AS:i:294	nM:i:3
+A01944:91:HTKKHDSX5:4:1460:24740:3129	147	AC_000158.1	51323	255	151M	=	51286	-188	TATGCACATCCATGCCTGCTTC
+ATGGTGTTGTATGGCAGAAACCAACACAACACTGCAAATTAAACACTCCAGTTAGAAAAGTAACACAGTCTCTCTGGAGAGAGGAGCTACATTGTGTGCGTAGCTCCAGCCTCCTCAGAAGGAGTGGGG	FFFFFFFF:F:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF:FFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF	NH:i:1	HI:i:1	AS:i:294	nM:i:3
+A01944:91:HTKKHDSX5:4:1606:17824:22060	355	AC_000158.1	61941	3	129M	=	61941	129	GCCAGCTGCTGCCCTTGTGAAC
+AGTTTGAAAACTGGAAAAGGCTAGAAAACATCCTTCTGTTCTCTTGAGTGTCTGGAAAGATGGCATCTTGGAAATTGACTCCATGAGGCAAGAGGTTATAGTTCTCA	FFFFFFFFFFFFFFFFFFFFFF
+FFFFFF,FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF	NH:i:2	HI:i:2	AS:i:2
+56	nM:i:0
+-----------------------------------------------------------------------------------------------------------------
+
+3-3) Re-buliding genome index using SJ.out_filtered.tab file
+-. Filtering file with splice junction
+-----------------------------------------------------------------------------------------------------------------
+Command line
+$ cd /mnt/sdb1/hanwoo_mRNA_DEG/umd3.1.1_star_mapping/230921
+$ for infile in *_SJ.out.tab; do base=$(basename ${infile} _SJ.out.tab); echo ${base}; done
+hw_high_20002_umd3.1_star
+hw_high_20008_umd3.1_star
+hw_high_20012_umd3.1_star
+hw_high_20016_umd3.1_star
+hw_high_30014_umd3.1_star
+hw_high_30017_umd3.1_star
+hw_high_40014_umd3.1_star
+hw_high_50009_umd3.1_star
+hw_high_50010_umd3.1_star
+hw_low_30004_umd3.1_star
+hw_low_30008_umd3.1_star
+hw_low_30020_umd3.1_star
+hw_low_40017_umd3.1_star
+hw_low_50019_umd3.1_star
+$ iyoonseok95@yoonseok95:/mnt/sdb1/hanwoo_mRNA_DEG/umd3.1.1_star_mapping/230921$ cat hw_low_50019_umd3.1_star_SJ.out.tab|more
+AC_000158.1	125015	135819	2	2	1	1	0	63
+AC_000158.1	136002	137157	2	2	1	1	0	10
+AC_000158.1	137265	138874	2	2	1	1	0	13
+AC_000158.1	242647	355063	1	1	1	14	0	75
+AC_000158.1	351875	355063	1	1	1	1019	0	75
+AC_000158.1	355029	355114	1	1	1	5	0	21
+AC_000158.1	355238	357792	1	1	1	1261	3	75
+AC_000158.1	357072	357792	1	1	1	4	0	21
+AC_000158.1	357953	361135	1	1	1	1093	12	75
+AC_000158.1	361612	361872	1	1	1	1	0	75
+AC_000158.1	402352	407072	1	1	1	1	0	19
+AC_000158.1	402352	407076	1	1	1	2	0	34
+AC_000158.1	453425	463039	2	2	1	1	0	38
+AC_000158.1	457465	466227	2	2	1	3	0	6
+-. Splice junctions.
+SJ.out.tab contains high confidence collapsed splice junctions in tab-delimited format. Note that
+STAR defines the junction start/end as intronic bases, while many other software define them as
+exonic bases. The columns have the following meaning:
+column 1: chromosome
+column 2: first base of the intron (1-based)
+column 3: last base of the intron (1-based)
+column 4: strand (0: undefined, 1: +, 2: -)
+column 5: intron motif: 0: non-canonical; 1: GT/AG, 2: CT/AC, 3: GC/AG, 4: CT/GC, 5:
+AT/AC, 6: GT/AT
+column 6: 0: unannotated, 1: annotated (only if splice junctions database is used)
+column 7: number of uniquely mapping reads crossing the junction
+column 8: number of multi-mapping reads crossing the junction
+column 9: maximum spliced alignment overhang
+
+$ for infile in *_SJ.out.tab; do base=$(basename ${infile} _SJ.out.tab); cat ${base}_SJ.out.tab | awk '($5 > 0 && $7 > 2 && $6==0)' | cut -f1-6 | sort | uniq > ${base}_SJ.out_filtered.tab; done
+Before using splice junctions, you should filter out the likely false positives splice junctions such as junctions supported by very few reads (e.g. ≤ 2 reads), non-canonical junctions (The 0 value in column5 from SJ.out.tab denotes non-canonical junctions), and annotated junctions (The 1 value in column6 from SJ.out.tab denotes annotated junctions). The annotated junctions should be filtered out as they are already included in the gene annotation (GTF/GFF3 file).
+-----------------------------------------------------------------------------------------------------------------
+$ iyoonseok95@yoonseok95:/mnt/sdb1/hanwoo_mRNA_DEG/umd3.1.1_star_mapping/230921$ cat hw_low_50019_umd3.1_star_SJ.out_filtered.tab|more
+AC_000159.1	135614734	135614952	2	2	0
+AC_000160.1	21470869	21471442	1	1	0
+AC_000161.1	64209387	64209626	1	1	0
+AC_000161.1	94111183	94111521	1	1	0
+AC_000164.1	16501452	16502414	1	1	0
+AC_000175.1	55927834	55927956	1	1	0
+AC_000175.1	55927834	55928076	1	1	0
+AC_000180.1	27137010	27137292	2	2	0
+AC_000180.1	27137659	27137740	2	2	0
+AC_000180.1	27690242	27843152	1	1	0
+-----------------------------------------------------------------------------------------------------------------
+Command line
+cat seed_sampleSJ.out.tab | awk '($5 > 0 && $7 > 2 && $6==0)' | cut -f1-6 | sort | uniq > SJ_out_filtered.tab
+'awk' Command 
+  -. 파일로부터 레코드를 선택하고 선택된 레코드에 포함된 값을 조작하거나 데이터화하는 것
+  -. '$1' 데이터 첫번째 열
+'uniq' Command : display/finds identical line and duplicated line in a file  
+# if you have multiple splice junctions files
+cat *.tab | awk '($5 > 0 && $7 > 2 && $6==0)' | cut -f1-6 | sort | uniq > SJ.out_filtered.tab
+-----------------------------------------------------------------------------------------------------------------
+Command line
+$ cat *.tab | awk '($5 > 0 && $7 > 2 && $6==0)' | cut -f1-6 | sort | uniq > hw_highlow_SJ.out_filtered.tab
+-----------------------------------------------------------------------------------------------------------------
+
+-. Build genome index with filtered output  
+-----------------------------------------------------------------------------------------------------------------
+Command line
+$ cd /home/iyoonseok95/b_taurus_ref/umd3.1.1/ncbi_dataset/data/GCF_000003055.6
+$ STAR --runThreadN 12 --runMode genomeGenerate --genomeDir /home/iyoonseok95/b_taurus_ref/umd3.1.1/star_index_filtering_2pass --genomeFastaFiles GCF_000003055.6_Bos_taurus_UMD_3.1.1_genomic.fna --sjdbGTFfile genomic.gff --sjdbFileChrStartEnd /mnt/sdb1/hanwoo_mRNA_DEG/umd3.1.1_star_mapping/230921/hw_highlow_SJ.out_filtered.tab --sjdbOverhang 149
+-----------------------------------------------------------------------------------------------------------------
+STAR --runThreadN 12 \ 
+    --runMode genomeGenerate \ 
+    --genomeDir ath_star_index_2pass \ 
+    --genomeFastaFiles Athaliana_TAIR10.fasta \
+    --sjdbGTFfile Athaliana_gene.gtf \
+    --sjdbFileChrStartEnd SJ_out_filtered.tab \
+    --sjdbOverhang 149
+
+3-4) Mapping reads to the reference genome 2nd pass
+-----------------------------------------------------------------------------------------------------------------
+Command line
+$ cd /mnt/sdb1/hanwoo_mRNA_DEG/trimmed_fastq
+$ for infile in *_1.fq.gz; do base=$(basename ${infile} _trimmed_1.fq.gz); echo ${base}; done 
+hw_high_20002
+hw_high_20008
+hw_high_20012
+hw_high_20016
+hw_high_30014
+hw_high_30017
+hw_high_40014
+hw_high_50009
+hw_high_50010
+hw_low_30004
+hw_low_30008
+hw_low_30020
+hw_low_40017
+hw_low_50019
+$ for infile in *_1.fq.gz; do base=$(basename ${infile} _trimmed_1.fq.gz); STAR --runThreadN 12 --readFilesIn ${base}_trimmed_1.fq.gz ${base}_trimmed_2.fq.gz --genomeDir /home/iyoonseok95/b_taurus_ref/umd3.1.1/star_index_filtering_2pass --outSAMtype BAM SortedByCoordinate --outFileNamePrefix /mnt/sdb1/hanwoo_mRNA_DEG/umd3.1.1_star_mapping/230921/${base}_star2pass_filtered --outSAMunmapped Within --readFilesCommand zcat; done
+-----------------------------------------------------------------------------------------------------------------
+# map paired-end reads to genome
+STAR --runThreadN 12 \
+     --readFilesIn ath_sample_read1.fastq ath_sample_read2.fastq \
+     --genomeDir ath_star_index_2pass \
+     --outSAMtype BAM SortedByCoordinate \
+     --outFileNamePrefix seed_sample  \
+     --outSAMunmapped Within
+
+$ iyoonseok95@yoonseok95:/mnt/sdb1/hanwoo_mRNA_DEG/umd3.1.1_star_mapping/230921$ cat hw_low_50019_star2pass_filteredLog.final.out 
+                                 Started job on |	Sep 22 14:32:17
+                             Started mapping on |	Sep 22 14:32:28
+                                    Finished on |	Sep 22 14:48:30
+       Mapping speed, Million of reads per hour |	111.52
+
+                          Number of input reads |	29800885
+                      Average input read length |	277
+                                    UNIQUE READS:
+                   Uniquely mapped reads number |	28416219
+                        Uniquely mapped reads % |	95.35%
+                          Average mapped length |	277.25
+                       Number of splices: Total |	38954782
+            Number of splices: Annotated (sjdb) |	38058000
+                       Number of splices: GT/AG |	38642015
+                       Number of splices: GC/AG |	262065
+                       Number of splices: AT/AC |	13317
+               Number of splices: Non-canonical |	37385
+                      Mismatch rate per base, % |	0.10%
+                         Deletion rate per base |	0.01%
+                        Deletion average length |	2.01
+                        Insertion rate per base |	0.00%
+                       Insertion average length |	1.48
+                             MULTI-MAPPING READS:
+        Number of reads mapped to multiple loci |	598266
+             % of reads mapped to multiple loci |	2.01%
+        Number of reads mapped to too many loci |	141810
+             % of reads mapped to too many loci |	0.48%
+                                  UNMAPPED READS:
+  Number of reads unmapped: too many mismatches |	0
+       % of reads unmapped: too many mismatches |	0.00%
+            Number of reads unmapped: too short |	451490
+                 % of reads unmapped: too short |	1.52%
+                Number of reads unmapped: other |	193100
+                     % of reads unmapped: other |	0.65%
+                                  CHIMERIC READS:
+                       Number of chimeric reads |	0
+                            % of chimeric reads |	0.00%
+
+Step 3. Count the read that mapped to the reference genome sequence
+
+1) Installation of htseq-count tool
+-----------------------------------------------------------------------------------------------------------------
+Command line
+$ pip install HTseq
+-----------------------------------------------------------------------------------------------------------------
+
+2) Indexing bam file
+-----------------------------------------------------------------------------------------------------------------
+Command line
+$ cd /mnt/sdb1/hanwoo_mRNA_DEG/umd3.1.1_star_mapping/230921
+$ for infile in *_star2pass_filteredAligned.sortedByCoord.out.bam; do base=$(basename ${infile} _star2pass_filteredAligned.sortedByCoord.out.bam); echo ${base}; done 
+hw_high_20002
+hw_high_20008
+hw_high_20012
+hw_high_20016
+hw_high_30014
+hw_high_30017
+hw_high_40014
+hw_high_50009
+hw_high_50010
+hw_low_30004
+hw_low_30008
+hw_low_30020
+hw_low_40017
+hw_low_50019
+$ for infile in *_star2pass_filteredAligned.sortedByCoord.out.bam; do base=$(basename ${infile} _star2pass_filteredAligned.sortedByCoord.out.bam); samtools index ${base}_star2pass_filteredAligned.sortedByCoord.out.bam; done
+-----------------------------------------------------------------------------------------------------------------
+
+3) Filtering genomic.gff file
+-----------------------------------------------------------------------------------------------------------------
+Command line
+#Solution : Print all line with 'gene' word in genomic.gff file
+$ cd /home/iyoonseok95/b_taurus_ref/umd3.1.1/ncbi_dataset/data/GCF_000003055.6
+$ iyoonseok95@yoonseok95:~/b_taurus_ref/umd3.1.1/ncbi_dataset/data/GCF_000003055.6$ awk '/gene/' ./genomic.gff > genomic_gene.gff
+$ iyoonseok95@yoonseok95:~/b_taurus_ref/umd3.1.1/ncbi_dataset/data/GCF_000003055.6$ ls
+GCF_000003055.6_Bos_taurus_UMD_3.1.1_genomic.fna  genomic.gff       protein.faa  sequence_report.jsonl
+cds_from_genomic.fna                              genomic_gene.gff  rna.fna
+$ iyoonseok95@yoonseok95:~/b_taurus_ref/umd3.1.1/ncbi_dataset/data/GCF_000003055.6$ cat genomic_gene.gff |more
+AC_000158.1	Gnomon	gene	33293	35627	.	+	.	ID=gene0;Dbxref=GeneID:104970773;Name=LOC104970773;gbkey=Gene;
+gene=LOC104970773;gene_biotype=protein_coding
+AC_000158.1	Gnomon	mRNA	33293	35627	.	+	.	ID=rna0;Parent=gene0;Dbxref=GeneID:104970773,Genbank:XM_010800
+890.2;Name=XM_010800890.2;Note=The sequence of the model RefSeq transcript was modified relative to this genomic sequence to represent
+ the inferred CDS: inserted 1 base in 1 codon;exception=unclassified transcription discrepancy;gbkey=mRNA;gene=LOC104970773;model_evid
+ence=Supporting evidence includes similarity to: 3 Proteins%2C and 99%25 coverage of the annotated genomic feature by RNAseq alignment
+s;product=olfactory receptor 5I1-like;transcript_id=XM_010800890.2
+AC_000158.1	Gnomon	exon	33293	35011	.	+	.	ID=id1;Parent=rna0;Dbxref=GeneID:104970773,Genbank:XM_01080089
+0.2;Note=The sequence of the model RefSeq transcript was modified relative to this genomic sequence to represent the inferred CDS: ins
+erted 1 base in 1 codon;exception=unclassified transcription discrepancy;gbkey=mRNA;gene=LOC104970773;product=olfactory receptor 5I1-l
+ike;transcript_id=XM_010800890.2
+
+4) mRNA quantification Command line
+-----------------------------------------------------------------------------------------------------------------
+Command line
+$ cd /mnt/sdb1/hanwoo_mRNA_DEG/umd3.1.1_star_mapping/230921
+$ htseq-count --format bam --order pos --mode intersection-strict --stranded reverse --minaqual 1  --type exon --idattr gene --add-chromosome-info hw_low_50019_star2pass_filteredAligned.sortedByCoord.out.bam /home/iyoonseok95/b_taurus_ref/umd3.1.1/ncbi_dataset/data/GCF_000003055.6/genomic_gene.gff > hw_low_50019_star2pass_htseq-count.tsv
+$ ll -later #오름차순으로(오래된파일부터)
+$ cat hw_low_50019_star2pass_htseq-count.tsv|more
+iyoonseok95@yoonseok95:/mnt/sdb1/hanwoo_mRNA_DEG/umd3.1.1_star_mapping/230921$ cat hw_low_50019_star2pass_htseq-count.tsv|more
+20ALPHA-HSD	AC_000170.1	10
+A1BG	AC_000175.1	0
+A1CF	AC_000183.1	0
+A2M	AC_000162.1	3668
+A2ML1	AC_000162.1	2
+A3GALT2	AC_000159.1	0
+A4GALT	AC_000162.1	34
+A4GNT	AC_000158.1	0
+AAAS	AC_000162.1	101
+AACS	AC_000174.1	66
+AADAC	AC_000158.1	0
+AADACL2	AC_000158.1	1
+AADACL3	AC_000173.1	0
+AADACL4	AC_000173.1	0
+$ for infile in *_star2pass_filteredAligned.sortedByCoord.out.bam; do base=$(basename ${infile} _star2pass_filteredAligned.sortedByCoord.out.bam); echo ${base}; done 
+hw_high_20002
+hw_high_20008
+hw_high_20012
+hw_high_20016
+hw_high_30014
+hw_high_30017
+hw_high_40014
+hw_high_50009
+hw_high_50010
+hw_low_30004
+hw_low_30008
+hw_low_30020
+hw_low_40017
+hw_low_50019
+$ for infile in *_star2pass_filteredAligned.sortedByCoord.out.bam; do base=$(basename ${infile} _star2pass_filteredAligned.sortedByCoord.out.bam); htseq-count --format bam --order pos --mode intersection-strict --stranded reverse --minaqual 1  --type exon --idattr gene ${base}_star2pass_filteredAligned.sortedByCoord.out.bam /home/iyoonseok95/b_taurus_ref/umd3.1.1/ncbi_dataset/data/GCF_000003055.6/genomic_gene.gff > ${base}_star2pass_htseq-count.tsv; done
+$ iyoonseok95@yoonseok95:/mnt/sdb1/hanwoo_mRNA_DEG/umd3.1.1_star_mapping/230921$ cat hw_high_20002_star2pass_htseq-count.tsv|more
+20ALPHA-HSD	4
+A1BG	1
+A1CF	0
+A2M	2513
+A2ML1	5
+A3GALT2	0
+A4GALT	58
+A4GNT	0
+AAAS	85
+AACS	37
+AADAC	0
+AADACL2	0
+AADACL3	0
+AADACL4	0
+AADAT	66
+AAED1	228
+AAGAB	439
+$ for infile in *_star2pass_htseq-count.tsv; do base=$(basename ${infile} _star2pass_htseq-count.tsv); echo ${base}; done 
+hw_high_20002
+hw_high_20008
+hw_high_20012
+hw_high_20016
+hw_high_30014
+hw_high_30017
+hw_high_40014
+hw_high_50009
+hw_high_50010
+hw_low_30004
+hw_low_30008
+hw_low_30020
+hw_low_40017
+hw_low_50019
+$ for infile in *_star2pass_htseq-count.tsv; do base=$(basename ${infile} _star2pass_htseq-count.tsv); join ${base}_star2pass_htseq-count.tsv; done > hw_highlow_star2pass_htseq_gene_count.tsv
+hw_high_20008_star2pass_htseq-count.tsv
+hw_high_20012_star2pass_htseq-count.tsv
+hw_high_20016_star2pass_htseq-count.tsv
+hw_high_30014_star2pass_htseq-count.tsv
+hw_high_30017_star2pass_htseq-count.tsv
+hw_high_40014_star2pass_htseq-count.tsv
+hw_high_50009_star2pass_htseq-count.tsv
+hw_high_50010_star2pass_htseq-count.tsv
+hw_low_30004_star2pass_htseq-count.tsv
+hw_low_30008_star2pass_htseq-count.tsv
+hw_low_30020_star2pass_htseq-count.tsv
+hw_low_40017_star2pass_htseq-count.tsv
+
+
+
+
+join C1_count1.gff C1_count2.gff| join - C1_count3.gff | join - C2_count4.gff |join - C2_count5.gff|join - C2_count6.gff > gene_counts_HTseq.gff
+#if you have many samples, use for-loop and join
+
+$ for infile in *_star2pass_filteredAligned.sortedByCoord.out.bam; do base=$(basename ${infile} _star2pass_filteredAligned.sortedByCoord.out.bam); htseq-count --format bam --order pos --mode intersection-strict --stranded reverse --minaqual 1  --type exon --idattr gene ${base}_star2pass_filteredAligned.sortedByCoord.out.bam /home/iyoonseok95/b_taurus_ref/umd3.1.1/ncbi_dataset/data/GCF_000003055.6/genomic_gene.gff > ${base}_star2pass_htseq-count.txt; done
+
+
+
+
+htseq-count \
+-m intersection-nonempty \
+-i gene_id \
+-r pos \
+-s no \
+- gencode.v22.annotation.gtf
+
+htseq-count 
+          --format bam \
+          --order pos \
+          --mode intersection-strict \
+          --stranded reverse \
+          --minaqual 1 \
+          --type exon \
+          --idattr gene_id \
+          ${bam_base}.bam $RNA_REF_GTF \
+          > ${HTSEQ_COUNT_DIR}/${bam_base}_gene.tsv
+          
+          htseq-count options are specified below:
+
+--format - specify the input file format one of BAM or SAM. Since we have BAM format files, select 'bam' for this option.
+--order - provide the expected sort order of the input file. Previously we generated position sorted BAM files so use 'pos'.
+--mode - determines how to deal with reads that overlap more than one feature. We believe the 'intersection-strict' mode is best.
+--stranded - specifies whether data is stranded or not. The TruSeq strand-specific RNA libraries suggest the 'reverse' option for this parameter.
+--minaqual - will skip all reads with alignment quality lower than the given minimum value
+--type - specifies the feature type (3rd column in GFF file) to be used. (default, suitable for RNA-Seq and Ensembl GTF files: exon)
+--idattr - The feature ID used to identify the counts in the output table. The default, suitable for RNA-SEq and Ensembl GTF files, is gene_id.
+
+
+Aligining reads to a genome annotation using htseq-count
+htseq-count can be used to align reads to a genome annotation as follows:
+
+$ htseq-count --format bam sorted_alignment_file.bam genome_annotation > output_file.txt
+In this command…
+
+--format or -f is the format of the input data. Possible values are sam (for text SAM files) and bam (for binary BAM files). Default is sam. A bam file is used in this example.
+--order specifies whether the alignments have been sorted by name (name) or coordinates/position (pos).
+sorted_alignment_file.bam is a bam format alignment file, sorted by name.
+genome_annotation is the genome annotation file the reads in the alignment_file are aligned to (.gtf or .gff).
+> output_file.txt redirects the output (STDOUT) to output_file.txt.
+
+
+$ htseq-count --format bam --order pos --mode intersection-strict --stranded reverse --minaqual 1  --type exon --idattr gene hw_highlow_umd3.1.1v2_filteredAligned.sortedByCoord.out.bam /home/iyoonseok95/b_taurus_ref/umd3.1.1/ncbi_dataset/data/GCF_000003055.6/genomic.gff > hw_highlow_htseq-count_output.tsv
+
+$ htseq-count --format bam hw_highlow_umd3.1.1v2_filteredAligned.sortedByCoord.out.bam /home/iyoonseok95/b_taurus_ref/umd3.1.1/ncbi_dataset/data/GCF_000003055.6/genomic.gff > hw_highlow_htseq-count_output.tsv
+
+[genome.gff file content]
+##gff-version 3
+#!gff-spec-version 1.21
+#!processor NCBI annotwriter
+#!genome-build Bos_taurus_UMD_3.1.1
+#!genome-build-accession NCBI_Assembly:GCF_000003055.6
+#!annotation-source NCBI Bos taurus Annotation Release 105
+##sequence-region AC_000158.1 1 158337067
+##species https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=9913
+AC_000158.1	RefSeq	region	1	158337067	.	+	.	ID=id0;Dbxref=taxon:9913;Name=1;breed=Hereford;chromosome=1;gbkey=Src;genome=chromosome;mol_type=genomic DNA
+AC_000158.1	Gnomon	gene	33293	35627	.	+	.	ID=gene0;Dbxref=GeneID:104970773;Name=LOC104970773;gbkey=Gene;gene=LOC104970773;gene_biotype=protein_coding
+AC_000158.1	Gnomon	mRNA	33293	35627	.	+	.	ID=rna0;Parent=gene0;Dbxref=GeneID:104970773,Genbank:XM_010800890.2;Name=XM_010800890.2;Note=The sequence of the model RefSeq transcript was modified relative to this gen
+omic sequence to represent the inferred CDS: inserted 1 base in 1 codon;exception=unclassified transcription discrepancy;gbkey=mRNA;gene=LOC104970773;model_evidence=Supporting evidence includes similarity to: 3 Proteins%2C and 99%25 coverage 
+of the annotated genomic feature by RNAseq alignments;product=olfactory receptor 5I1-like;transcript_id=XM_010800890.2
+AC_000158.1	Gnomon	exon	33293	35011	.	+	.	ID=id1;Parent=rna0;Dbxref=GeneID:104970773,Genbank:XM_010800890.2;Note=The sequence of the model RefSeq transcript was modified relative to this genomic sequence to repre
+sent the inferred CDS: inserted 1 base in 1 codon;exception=unclassified transcription discrepancy;gbkey=mRNA;gene=LOC104970773;product=olfactory receptor 5I1-like;transcript_id=XM_010800890.2
+AC_000158.1	Gnomon	exon	35014	35627	.	+	.	ID=id2;Parent=rna0;Dbxref=GeneID:104970773,Genbank:XM_010800890.2;Note=The sequence of the model RefSeq transcript was modified relative to this genomic sequence to repre
+sent the inferred CDS: inserted 1 base in 1 codon;exception=unclassified transcription discrepancy;gbkey=mRNA;gene=LOC104970773;product=olfactory receptor 5I1-like;transcript_id=XM_010800890.2
+
+iyoonseok95@yoonseok95:/mnt/sdb1/hanwoo_mRNA_DEG/umd3.1.1_star_mapping$ htseq-count --format bam --order pos --mode intersection-strict --stranded reverse --minaqual 1  --type exon --idattr gene hw_highlow_umd3.1.1v2_filteredAligned.sortedByCoord.out.bam /home/iyoonseok95/b_taurus_ref/umd3.1.1/ncbi_dataset/data/GCF_000003055.6/genomic.gff > hw_highlow_htseq-count_output.tsv
+[E::idx_find_and_load] Could not retrieve index file for 'hw_highlow_umd3.1.1v2_filteredAligned.sortedByCoord.out.bam'
+100000 GFF lines processed.
+200000 GFF lines processed.
+300000 GFF lines processed.
+400000 GFF lines processed.
+500000 GFF lines processed.
+600000 GFF lines processed.
+700000 GFF lines processed.
+800000 GFF lines processed.
+900000 GFF lines processed.
+1000000 GFF lines processed.
+1100000 GFF lines processed.
+1200000 GFF lines processed.
+1300000 GFF lines processed.
+Error processing GFF file (line 1372936 of file /home/iyoonseok95/b_taurus_ref/umd3.1.1/ncbi_dataset/data/GCF_000003055.6/genomic.gff):
+  Feature id660306 does not contain a 'gene' attribute
+  [Exception type: ValueError, raised in features.py:387]
+
+#Problem 	
+[E::idx_find_and_load] Could not retrieve index file for 'hw_highlow_umd3.1.1v2_filteredAligned.sortedByCoord.out.bam'
+#Solution	
+$ samtools index hw_highlow_umd3.1.1v2_filteredAligned.sortedByCoord.out.bam
+
+$ htseq-count --format bam --order pos --mode intersection-strict --stranded reverse --minaqual 1  --type exon --idattr geneid hw_highlow_umd3.1.1v2_filteredAligned.sortedByCoord.out.bam /home/iyoonseok95/b_taurus_ref/umd3.1.1/ncbi_dataset/data/GCF_000003055.6/genomic.gff > hw_highlow_htseq-count_output.tsv
+
+
+
+#Problem 	
+Error processing GFF file (line 1372936 of file /home/iyoonseok95/b_taurus_ref/umd3.1.1/ncbi_dataset/data/GCF_000003055.6/genomic.gff):
+  Feature id660306 does not contain a 'gene' attribute
+  [Exception type: ValueError, raised in features.py:387]
+$ iyoonseok95@yoonseok95:~/b_taurus_ref/umd3.1.1/ncbi_dataset/data/GCF_000003055.6$ grep "660306" genomic.gff
+AC_000182.1	BestRefSeq	exon	21660306	21660428	.	+	.	ID=id572261;Parent=rna52196;Dbxref=GeneID:515280,Genbank:NM_001192405.1,BGD:BT29219;gbkey=mRNA;gene=CHP2;product=calcineurin-like EF-hand protein 2;transcript_id=NM_001192405.1
+AC_000182.1	BestRefSeq	CDS	21660306	21660428	.	+	0	ID=cds42626;Parent=rna52196;Dbxref=GeneID:515280,Genbank:NP_001179334.1,BGD:BT29219;Name=NP_001179334.1;gbkey=CDS;gene=CHP2;product=calcineurin B homologous protein 2;protein_id=NP_001179334.1
+NC_006853.1	RefSeq	exon	364	430	.	+	.	ID=id660306;Parent=rna60427;anticodon=(pos:395..397);gbkey=tRNA;product=tRNA-Phe
+
+
+
+
+$ htseq-count --format bam --order pos --mode intersection-strict --stranded reverse --minaqual 1  --type exon --idattr gene hw_highlow_umd3.1.1v2_filteredAligned.sortedByCoord.out.bam /home/iyoonseok95/b_taurus_ref/umd3.1.1/ncbi_dataset/data/GCF_000003055.6/genomic_gene.gff > hw_highlow_htseq-count_output.tsv
+
+iyoonseok95@yoonseok95:/mnt/sdb1/hanwoo_mRNA_DEG/umd3.1.1_star_mapping$ htseq-count --format bam --order pos --mode intersection-strict --stranded reverse --minaqual 1  --type exon --idattr gene hw_highlow_umd3.1.1v2_filteredAligned.sortedByCoord.out.bam /home/iyoonseok95/b_taurus_ref/umd3.1.1/ncbi_dataset/data/GCF_000003055.6/genomic_gene.gff > hw_highlow_htseq-count_output.tsv
+100000 GFF lines processed.
+200000 GFF lines processed.
+300000 GFF lines processed.
+400000 GFF lines processed.
+500000 GFF lines processed.
+600000 GFF lines processed.
+700000 GFF lines processed.
+800000 GFF lines processed.
+900000 GFF lines processed.
+1000000 GFF lines processed.
+1100000 GFF lines processed.
+1200000 GFF lines processed.
+1300000 GFF lines processed.
+1319118 GFF lines processed.
+100000 alignment record pairs processed.
+200000 alignment record pairs processed.
+300000 alignment record pairs processed.
+
+usage: htseq-count [-h] [--version] [-f {sam,bam,auto}] [-r {pos,name}] [--max-reads-in-buffer MAX_BUFFER_SIZE] [-s {yes,no,reverse}]
+                   [-a MINAQUAL] [-t FEATURE_TYPE] [-i IDATTR] [--additional-attr ADDITIONAL_ATTRIBUTES] [--add-chromosome-info]
+                   [-m {union,intersection-strict,intersection-nonempty}] [--nonunique {none,all,fraction,random}]
+                   [--secondary-alignments {score,ignore}] [--supplementary-alignments {score,ignore}] [-o SAMOUTS] [-p {SAM,BAM,sam,bam}]
+                   [-d OUTPUT_DELIMITER] [-c OUTPUT_FILENAME] [--counts-output-sparse] [--append-output] [-n NPROCESSES]
+                   [--feature-query FEATURE_QUERY] [-q] [--with-header]
+                   samfilenames [samfilenames ...] featuresfilename
+htseq-count: error: the following arguments are required: samfilenames, featuresfilename
+
+Parameters
+Reference organism (...) [homo sapiens]
+Chromosome names in my BAM file look like (chr1, 1) [1]
+Does the alignment file contain paired-end data (yes, no) [no]
+Is the data stranded and how (yes, no, reverse) [no]
+Mode to handle reads overlapping more than one gene (union, intersection-strict, intersection-nonempty) [union]
+Minimum mapping quality (0-100) [10]
+Feature type to count (exon, CDS) [exon]
+Feature ID to use (gene_id, transcript_id, gene_name, transcript_name, protein_name) [gene_id]
+Add chromosomal coordinates to the count table (yes, no) [yes]
+
+$ htseq-count --format bam --order pos --mode intersection-strict --stranded reverse --minaqual 1  --type exon --idattr gene --counts_output hw_highlow_htseq-counts_output.txt hw_highlow_umd3.1.1v2_filteredAligned.sortedByCoord.out.bam /home/iyoonseok95/b_taurus_ref/umd3.1.1/ncbi_dataset/data/GCF_000003055.6/genomic_gene.gff
+
+316300000 alignment record pairs processed.
+316400000 alignment record pairs processed.
+316500000 alignment record pairs processed.
+316600000 alignment record pairs processed.
+316700000 alignment record pairs processed.
+316800000 alignment record pairs processed.
+316900000 alignment record pairs processed.
+317000000 alignment record pairs processed.
+317100000 alignment record pairs processed.
+317200000 alignment record pairs processed.
+317237895 alignment record pairs processed.
+  Format not recognized for output count file: txt
+  [Exception type: ValueError, raised in utils.py:371]
+
+
+
+ftp://ftp.ensembl.org/pub/current_gtf/bos_taurus/
+
+
+  Step 4. Functional annotation
+
+
+
+
+
+
+
+
+
+
+#### supplymentary 
+$ for R1 in Raw_Reads/*.fq.gz; do R2=$(echo $R1| sed 's/_R1_/_R2_/'); name=$(echo $R1|sed 's/_R1_001.fastq.gz//'|sed 's/Raw_Reads\///'); done
+
+/home/iyoonseok95/b_taurus_ref/umd3.1.1/umd3.1.1_mapping_star_sam
+
+/mnt/sdb1/hanwoo_mRNA_DEG
+
+
+fastp -i ${base}_1.fq.gz -I ${base}_2.fq.gz -o /mnt/sdb1/hanwoo_mRNA_DEG/trimmed_fastq/${base}_trimmed_1.fq.gz -O /mnt/sdb1/hanwoo_mRNA_DEG/trimmed_fastq/${base}_trimmed_2.fq.gz --detect_adapter_for_pe --overrepresentation_analysis --correction --cut_right --thread 16 --html /mnt/sdb1/hanwoo_mRNA_DEG/fastp_result/${base}_trimmed.fastp.html --json /mnt/sdb1/hanwoo_mRNA_DEG/fastp_result/${base}_trimmed.fastp.json; done 
+
+-----------------------------------------------------------------------------------------------------------------
+sudo apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev libgdbm-dev libnss3-dev libedit-dev libc6-dev
+
+wget https://www.python.org/ftp/python/3.6.15/Python-3.6.15.tgz
+
+tar -xzf Python-3.6.15.tgz
+
+cd Python-3.6.15
+./configure --enable-optimizations  -with-lto  --with-pydebug
+make -j 64  # adjust for number of your CPU cores 
+sudo make altinstall
+
+python3.6 -V
+-----------------------------------------------------------------------------------------------------------------
+
+for R1 in Raw_Reads/*_R1_001.fastq.gz; do R2=$(echo $R1| sed 's/_R1_/_R2_/'); name=$(echo $R1|sed 's/_R1_001.fastq.gz//'|sed 's/Raw_Reads\///'); echo "fastp -i $R1 -I $R2 -o Trim_Reads/$name.trim.R1.fastq.gz -O Trim_Reads/$name.trim.R2.fastq.gz -w 4 --detect_adapter_for_pe -j Trim_Logs/$name.json -h Trim_Logs/$name.html &> Trim_Logs/$name.log.txt";done > fastp.commands
+
+
+
+
