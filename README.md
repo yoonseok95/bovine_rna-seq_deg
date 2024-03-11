@@ -73,7 +73,7 @@ $ cd ncbi_dataset
 $ STAR \
   --runThreadN 12 \
   --runMode genomeGenerate \
-  --genomeDir /[directory_path] \
+  --genomeDir /[directory_path]/index_gff \
   --genomeFastaFiles GCF_002263795.2_ARS-UCD1.3_genomic.fna \
   --sjdbGTFfile genomic.gff \
   --sjdbGTFtagExonParentTranscript Parent \
