@@ -189,6 +189,23 @@ AC_000158.1	242647	254564	1	1	0	1	0	59
 AC_000158.1	242647	275622	1	1	0	9	0	58
 AC_000158.1	242647	318512	1	1	0	2	0	56
 ```
+-. Splice junctions.
+SJ.out.tab contains high confidence collapsed splice junctions in tab-delimited format. Note that
+STAR defines the junction start/end as intronic bases, while many other software define them as
+exonic bases. The columns have the following meaning:
+column 1: chromosome
+column 2: first base of the intron (1-based)
+column 3: last base of the intron (1-based)
+column 4: strand (0: undefined, 1: +, 2: -)
+column 5: intron motif: 0: non-canonical; 1: GT/AG, 2: CT/AC, 3: GC/AG, 4: CT/GC, 5:
+AT/AC, 6: GT/AT
+column 6: 0: unannotated, 1: annotated (only if splice junctions database is used)
+column 7: number of uniquely mapping reads crossing the junction
+column 8: number of multi-mapping reads crossing the junction
+column 9: maximum spliced alignment overhang
+
+$ for infile in *_SJ.out.tab; do base=$(basename ${infile} _SJ.out.tab); cat ${base}_SJ.out.tab | awk '($5 > 0 && $7 > 2 && $6==0)' | cut -f1-6 | sort | uniq > ${base}_SJ.out_filtered.tab; done
+Before using splice junctions, you should filter out the likely false positives splice junctions such as junctions supported by very few reads (e.g. ≤ 2 reads), non-canonical junctions (The 0 value in column5 from SJ.out.tab denotes non-canonical junctions), and annotated junctions (The 1 value in column6 from SJ.out.tab denotes annotated junctions). The annotated junctions should be filtered out as they are already included in the gene annotation (GTF/GFF3 file).
 ### 2) Re-buliding genome index using SJ.out_filtered.tab file
 ```
 $ cd ucd1.3_star_mapping
