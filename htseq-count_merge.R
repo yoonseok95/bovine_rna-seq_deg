@@ -15,6 +15,8 @@ getwd()
 setwd("D:/이지연 DEG 분석/")
 
 # 파일 리스트 생성
+tsv_check <- read.table(file.choose(), sep="\t")
+tsv_check
 rename_list <- list.files(pattern="*.tsv")
 
 # 각 파일을 불러와서 열 이름 변경 후 다시 저장
