@@ -334,7 +334,8 @@ $ for infile in *_filteredAligned.sortedByCoord.out.bam; \
   done
 ```
 ## 5. Expression analysis of DEGs (in R)
-  - See 'htseq-count_merge.R' file 
+  - See 'htseq-count_merge.R' file
+  - https://www.incodom.kr/GFF_and_GTF 
 
 ## 6. Normalization(R/FKM, TPM)
   - See 'Normalization_RPKM_TPM.R' file
