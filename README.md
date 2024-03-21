@@ -294,7 +294,106 @@ $ pip install HTseq
 $ cd [directory_paht]
 
 $ for infile in *_filteredAligned.sortedByCoord.out.bam; \
-  do base=$(basename ${infile} _filteredAligned.sortedByCoord.out.bam); \
+  do base=$(basename ${infile} _filteredAli#!/bin/sh
+
+#Create tabular info from GTF
+cat genomic.gtf | \
+awk 'BEGIN{FS="\t"}{split($9,a,";"); if($3~"gene") print a[1]"\t"a[5]"\t"$1":"$4"-"$5"\t"a[6]"\t"$7}' | \
+sed 's/gene_id "//' | \
+sed 's/gene "//' | \
+sed 's/db_xref "//' | \
+sed 's/gene_biotype "//' | \
+sed 's/"//g' | \
+awk 'BEGIN{FS="\t"}{split($3,a,"[:-]"); print $1"\t"$2"\t"a[1]"\t"a[2]"\t"a[3]"\t"$4"\t"$5"\t"a[3]-a[2];}' | \
+sort -k3,3 -k4,4n -k5,5n | \
+sed "1i\GeneID\tGene\tgene_id\tStart\tEnd\tClass\tStrand\tLength" \
+> genomic.annotation_genes.txt
+
+ LOC785541	GK000003.2	101173430	101176214	 pseudogene	+	2784
+ TESK2		GK000003.2	101181509	101320775	 protein_coding	+	139266
+ SPATA7		GK000010.2	101186186	101224038	 protein_coding	+	37852
+ LOC100336936	GK000006.2	101195831	101271813	 pseudogene	+	75982
+ LOC789459	GK000007.2	10120294	10122884	 pseudogene	+	2590
+ LBX2		GK000011.2	10120952	10122607	 protein_coding	+	1655
+ LOC506828	GK000005.2	101210292	101267000	 protein_coding	+	56708
+ KCNIP3		GK000011.2	1012170	1014325	 protein_coding	-	2155
+ LOC100298723	GK000030.2	101217311	101492856	 pseudogene	+	275545
+ LOC100138361	GK000019.2	10123663	10125021	 pseudogene	-	1358
+ PTPN21		GK000010.2	101236740	101309243	 protein_coding	-	72503
+ LAMC3		GK000011.2	101246786	101315529	 protein_coding	+	68743
+
+$ cat genomic.gtf | awk 'BEGIN{FS="\t"}{split($9,a,";"); if($3~"gene") print a[1]"\t"a[5]"\t"a[3]":"$4"-"$5"\t"a[6]"\t"$7}' 
+gene_id "BOS_498"	 gene "LOC100337382"	 db_xref "GeneID:100337382":4-583	 gene_biotype "protein_coding"	-
+gene_id "BOS_499"	 gene "LOC781231"	 db_xref "GeneID:781231":1-835	 gene_biotype "protein_coding"	-
+gene_id "BOS_500"	 gene "LOC790833"	 db_xref "GeneID:790833":9-648	 gene_biotype "protein_coding"	-
+gene_id "BOS_501"	 gene "LOC785656"	 db_xref "GeneID:785656":151-660	 gene_biotype "protein_coding"	+
+gene_id "BOS_502"	 gene "LOC786233"	 db_xref "GeneID:786233":143-794	 gene_biotype "pseudogene"	+
+
+iyoonseok95@yoonseok95://mnt/sdb1/hanwoo_mRNA_DEG/umd3.1.1_star2pass_htseq_count/normal$ cat genomic.gtf | head -10
+#gtf-version 2.2
+#!genome-build Bos_taurus_UMD_3.1.1
+#!genome-build-accession NCBI_Assembly:GCA_000003055.5
+GK000001.2	tpg	gene	20372	35558	.	+	.	gene_id "BOS_503"; transcript_id ""; db_xref "GeneID:100336696"; gbkey "Gene"; gene "LOC100336696"; gene_biotype "pseudogene"; locus_tag "BOS_503"; note "The sequence of the transcript was modified to remove a frameshift represented in this assembly."; pseudo "true"; 
+GK000001.2	tpg	gene	66183	67115	.	-	.	gene_id "BOS_1"; transcript_id ""; db_xref "GeneID:787691"; gbkey "Gene"; gene "LOC787691"; gene_biotype "pseudogene"; locus_tag "BOS_1"; note "The sequence of the transcript was modified to remove frameshifts represented in this assembly."; pseudo "true"; 
+GK000001.2	tpg	gene	70192	71121	.	-	.	gene_id "BOS_2"; transcript_id ""; db_xref "GeneID:787710"; gbkey "Gene"; gene "LOC787710"; gene_biotype "pseudogene"; locus_tag "BOS_2"; note "The sequence of the transcript was modified to remove frameshifts represented in this assembly."; pseudo "true"; 
+GK000001.2	tpg	gene	124635	179713	.	-	.	gene_id "BOS_536"; transcript_id ""; db_xref "GeneID:507243"; gbkey "Gene"; gene "CLIC6"; gene_biotype "protein_coding"; locus_tag "BOS_536"; 
+GK000001.2	tpg	transcript	124635	179713	.	-	.	gene_id "BOS_536"; transcript_id "unassigned_transcript_1"; db_xref "GeneID:507243"; gbkey "mRNA"; gene "CLIC6"; locus_tag "BOS_536"; product "chloride intracellular channel 6-like"; transcript_biotype "mRNA"; 
+GK000001.2	tpg	exon	178433	179713	.	-	.	gene_id "BOS_536"; transcript_id "unassigned_transcript_1"; db_xref "GeneID:507243"; gene "CLIC6"; locus_tag "BOS_536"; product "chloride intracellular channel 6-like"; transcript_biotype "mRNA"; exon_number "1"; 
+GK000001.2	tpg	exon	138875	138984	.	-	.	gene_id "BOS_536"; transcript_id "unassigned_transcript_1"; db_xref "GeneID:507243"; gene "CLIC6"; locus_tag "BOS_536"; product "chloride intracellular channel 6-like"; transcript_biotype "mRNA"; exon_number "2"; 
+
+
+$1 GK000001.2	
+$2 tpg	
+$3 gene	
+$4 20372	
+$5 35558	
+$6 .	
+$7 +	
+$8 .	
+$9
+a[1] gene_id "BOS_503"		; 
+a[2] transcript_id ""		; 
+a[3] db_xref "GeneID:100336696"	; 
+a[4] gbkey "Gene"			; 
+a[5] gene "LOC100336696"		; 
+a[6] gene_biotype "pseudogene"	; 
+a[7] locus_tag "BOS_503"		; 
+a[8] note "The sequence of the transcript was modified to remove a frameshift represented in this assembly."; 
+a[9] pseudo "true"
+
+
+
+
+#gff.file format
+AC_000158.1	Gnomon	gene	33293	35627	.	+	.	ID=gene0;Dbxref=GeneID:104970773;Name=LOC104970773;gbkey=Gene;gene=LOC104970773;gene_biotype=protein_coding
+
+#gtf.file format
+GK000001.2	tpg	gene	66183	67115	.	-	.	gene_id "BOS_1"; transcript_id ""; db_xref "GeneID:787691"; gbkey "Gene"; gene "LOC787691"; gene_biotype "pseudogene"; locus_tag "BOS_1"; note "The sequence of the transcript was modified to remove frameshifts represented in this assembly."; pseudo "true"; 
+
+#command line
+#cat gencode.v33.annotation.gtf | \
+#awk 'BEGIN{FS="\t"}{split($9,a,";"); if($3~"gene") print a[1]"\t"a[3]"\t"$1":"$4"-"$5"\t"a[2]"\t"$7}' | \
+
+a[1] gene_id "BOS_503"		; 
+a[3] db_xref "GeneID:100336696"	; 
+$1":"$4"-"$5" 
+a[2] 		transcript_id ""		; 
+$7 		+
+
+
+
+
+
+cat genomic.gtf | awk 'BEGIN{FS="\t"}{split($9,a,";"); if($3~"gene") print a[1]"\t"a[5]"\t"a[3]":"$4"-"$5"\t"a[2]"\t"$7}'
+gene_id "BOS_502"	 gene "LOC786233"	 db_xref "GeneID:786233":143-794	 transcript_id ""	+
+
+
+
+
+
+
+
+gned.sortedByCoord.out.bam); \
   echo ${base}; \
   done
 
@@ -339,6 +438,103 @@ $ for infile in *_filteredAligned.sortedByCoord.out.bam; \
 
 ## 6. Normalization(R/FKM, TPM)
   - See 'Normalization_RPKM_TPM.R' file
+```
+#!/bin/sh
+
+#Create tabular info from GTF
+cat genomic.gtf | \
+awk 'BEGIN{FS="\t"}{split($9,a,";"); if($3~"gene") print a[1]"\t"a[5]"\t"$1":"$4"-"$5"\t"a[6]"\t"$7}' | \
+sed 's/gene_id "//' | \
+sed 's/gene "//' | \
+sed 's/db_xref "//' | \
+sed 's/gene_biotype "//' | \
+sed 's/"//g' | \
+awk 'BEGIN{FS="\t"}{split($3,a,"[:-]"); print $1"\t"$2"\t"a[1]"\t"a[2]"\t"a[3]"\t"$4"\t"$5"\t"a[3]-a[2];}' | \
+sort -k3,3 -k4,4n -k5,5n | \
+sed "1i\GeneID\tGene\tgene_id\tStart\tEnd\tClass\tStrand\tLength" \
+> genomic.annotation_genes.txt
+
+ LOC785541	GK000003.2	101173430	101176214	 pseudogene	+	2784
+ TESK2		GK000003.2	101181509	101320775	 protein_coding	+	139266
+ SPATA7		GK000010.2	101186186	101224038	 protein_coding	+	37852
+ LOC100336936	GK000006.2	101195831	101271813	 pseudogene	+	75982
+ LOC789459	GK000007.2	10120294	10122884	 pseudogene	+	2590
+ LBX2		GK000011.2	10120952	10122607	 protein_coding	+	1655
+ LOC506828	GK000005.2	101210292	101267000	 protein_coding	+	56708
+ KCNIP3		GK000011.2	1012170	1014325	 protein_coding	-	2155
+ LOC100298723	GK000030.2	101217311	101492856	 pseudogene	+	275545
+ LOC100138361	GK000019.2	10123663	10125021	 pseudogene	-	1358
+ PTPN21		GK000010.2	101236740	101309243	 protein_coding	-	72503
+ LAMC3		GK000011.2	101246786	101315529	 protein_coding	+	68743
+
+$ cat genomic.gtf | awk 'BEGIN{FS="\t"}{split($9,a,";"); if($3~"gene") print a[1]"\t"a[5]"\t"a[3]":"$4"-"$5"\t"a[6]"\t"$7}' 
+gene_id "BOS_498"	 gene "LOC100337382"	 db_xref "GeneID:100337382":4-583	 gene_biotype "protein_coding"	-
+gene_id "BOS_499"	 gene "LOC781231"	 db_xref "GeneID:781231":1-835	 gene_biotype "protein_coding"	-
+gene_id "BOS_500"	 gene "LOC790833"	 db_xref "GeneID:790833":9-648	 gene_biotype "protein_coding"	-
+gene_id "BOS_501"	 gene "LOC785656"	 db_xref "GeneID:785656":151-660	 gene_biotype "protein_coding"	+
+gene_id "BOS_502"	 gene "LOC786233"	 db_xref "GeneID:786233":143-794	 gene_biotype "pseudogene"	+
+
+iyoonseok95@yoonseok95://mnt/sdb1/hanwoo_mRNA_DEG/umd3.1.1_star2pass_htseq_count/normal$ cat genomic.gtf | head -10
+#gtf-version 2.2
+#!genome-build Bos_taurus_UMD_3.1.1
+#!genome-build-accession NCBI_Assembly:GCA_000003055.5
+GK000001.2	tpg	gene	20372	35558	.	+	.	gene_id "BOS_503"; transcript_id ""; db_xref "GeneID:100336696"; gbkey "Gene"; gene "LOC100336696"; gene_biotype "pseudogene"; locus_tag "BOS_503"; note "The sequence of the transcript was modified to remove a frameshift represented in this assembly."; pseudo "true"; 
+GK000001.2	tpg	gene	66183	67115	.	-	.	gene_id "BOS_1"; transcript_id ""; db_xref "GeneID:787691"; gbkey "Gene"; gene "LOC787691"; gene_biotype "pseudogene"; locus_tag "BOS_1"; note "The sequence of the transcript was modified to remove frameshifts represented in this assembly."; pseudo "true"; 
+GK000001.2	tpg	gene	70192	71121	.	-	.	gene_id "BOS_2"; transcript_id ""; db_xref "GeneID:787710"; gbkey "Gene"; gene "LOC787710"; gene_biotype "pseudogene"; locus_tag "BOS_2"; note "The sequence of the transcript was modified to remove frameshifts represented in this assembly."; pseudo "true"; 
+GK000001.2	tpg	gene	124635	179713	.	-	.	gene_id "BOS_536"; transcript_id ""; db_xref "GeneID:507243"; gbkey "Gene"; gene "CLIC6"; gene_biotype "protein_coding"; locus_tag "BOS_536"; 
+GK000001.2	tpg	transcript	124635	179713	.	-	.	gene_id "BOS_536"; transcript_id "unassigned_transcript_1"; db_xref "GeneID:507243"; gbkey "mRNA"; gene "CLIC6"; locus_tag "BOS_536"; product "chloride intracellular channel 6-like"; transcript_biotype "mRNA"; 
+GK000001.2	tpg	exon	178433	179713	.	-	.	gene_id "BOS_536"; transcript_id "unassigned_transcript_1"; db_xref "GeneID:507243"; gene "CLIC6"; locus_tag "BOS_536"; product "chloride intracellular channel 6-like"; transcript_biotype "mRNA"; exon_number "1"; 
+GK000001.2	tpg	exon	138875	138984	.	-	.	gene_id "BOS_536"; transcript_id "unassigned_transcript_1"; db_xref "GeneID:507243"; gene "CLIC6"; locus_tag "BOS_536"; product "chloride intracellular channel 6-like"; transcript_biotype "mRNA"; exon_number "2"; 
+
+
+$1 GK000001.2	
+$2 tpg	
+$3 gene	
+$4 20372	
+$5 35558	
+$6 .	
+$7 +	
+$8 .	
+$9
+a[1] gene_id "BOS_503"		; 
+a[2] transcript_id ""		; 
+a[3] db_xref "GeneID:100336696"	; 
+a[4] gbkey "Gene"			; 
+a[5] gene "LOC100336696"		; 
+a[6] gene_biotype "pseudogene"	; 
+a[7] locus_tag "BOS_503"		; 
+a[8] note "The sequence of the transcript was modified to remove a frameshift represented in this assembly."; 
+a[9] pseudo "true"
+
+#gff.file format
+AC_000158.1	Gnomon	gene	33293	35627	.	+	.	ID=gene0;Dbxref=GeneID:104970773;Name=LOC104970773;gbkey=Gene;gene=LOC104970773;gene_biotype=protein_coding
+
+#gtf.file format
+GK000001.2	tpg	gene	66183	67115	.	-	.	gene_id "BOS_1"; transcript_id ""; db_xref "GeneID:787691"; gbkey "Gene"; gene "LOC787691"; gene_biotype "pseudogene"; locus_tag "BOS_1"; note "The sequence of the transcript was modified to remove frameshifts represented in this assembly."; pseudo "true"; 
+
+#command line
+#cat gencode.v33.annotation.gtf | \
+#awk 'BEGIN{FS="\t"}{split($9,a,";"); if($3~"gene") print a[1]"\t"a[3]"\t"$1":"$4"-"$5"\t"a[2]"\t"$7}' | \
+
+a[1] gene_id "BOS_503"		; 
+a[3] db_xref "GeneID:100336696"	; 
+$1":"$4"-"$5" 
+a[2] 		transcript_id ""		; 
+$7 		+
+
+cat genomic.gtf | awk 'BEGIN{FS="\t"}{split($9,a,";"); if($3~"gene") print a[1]"\t"a[5]"\t"a[3]":"$4"-"$5"\t"a[2]"\t"$7}'
+gene_id "BOS_502"	 gene "LOC786233"	 db_xref "GeneID:786233":143-794	 transcript_id ""	+
+```
+  - https://blog.naver.com/PostView.nhn?blogId=nativekim&logNo=220683899974
+  - https://tanji3000.github.io/2017-03-09/sed_1line_insert
+  - https://wiseworld.tistory.com/entry/%EB%A6%AC%EB%88%85%EC%8A%A4-sed-%EB%AA%85%EB%A0%B9%EC%96%B4%EC%9D%98-%EA%B8%B0%EB%B3%B8%EC%A0%81%EC%9D%B8-%EC%82%AC%EC%9A%A9%EB%B0%A9%EB%B2%95
+
+
+
+
+
+
+
 
 ## 6-1. Pattern between sample with high and low group
   - See 'expression_level_EDA.R' file
