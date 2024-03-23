@@ -531,8 +531,9 @@ gene_id "BOS_502"	 gene "LOC786233"	 db_xref "GeneID:786233":143-794	 transcript
   - https://ycl6.gitbook.io/guide-to-rna-seq-analysis/preparations/softwares-and-databases
 
 ### RPKM (Reads per Kilobase per Millions mapped reads
-  - 
+  -  
 ![image](https://github.com/yoonseok95/bovine_rna-seq_deg/assets/81307584/32ed30f4-0eb6-444d-8cb3-3d1542aac5c8)
+https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf
 
 
 
