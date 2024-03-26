@@ -100,6 +100,8 @@ Parameter		Description
   -.The 1-pass mapping mode generates all required data essential for many downstream analyses such as differential gene expression analysis  
   -.robustly and accurately identify novel splice junction for differential splicing analysis and variant discovery
 
+  -. STAR with --quantMode GeneCounts
+
 ### 1) Mapping
 ```
 $ cd 'trimmed data'
